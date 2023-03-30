@@ -20,7 +20,7 @@ contract MyLittleDAO {
     /************** Mappings defnitions **************/
     mapping(uint8 => mapping(address => Voter)) voters;
 
-    /************** Enumerations definitions **************/
+    /************** Enumartions definitions **************/
     enum WorkflowStatus {
         RegisteringVoters,
         ProposalsRegistrationStarted,
@@ -48,6 +48,7 @@ contract MyLittleDAO {
         WorkflowStatus voteStatus;
         VoteType voteType;
         Proposal[] proposals;
+        address sessionAdmin;
     }
 
     struct Proposal {
