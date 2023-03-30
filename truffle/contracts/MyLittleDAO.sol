@@ -91,8 +91,18 @@ contract MyLittleDAO {
         @param sessionID The new session ID.*/ 
     event sessionCreated(uint sessionID);
 
+    /** @notice This event is emitted when admin session is transferred.
+        @param sessionID The session ID.
+        @param oldAdmin The old session admin.
+        @param newAdmin The new session admin.*/ 
+    event sessionAdminTransferred(uint sessionID, address oldAdmin, address newAdmin);
+
     /************** Modifier definitions **************/
 
+    modifier isSessionAdmin(uint _sessionID){  
+        require ( msg.sender == voteSessions[_sessionID].sessionAdmin ,"You are not the session admin");
+        _;
+    }
 
 
     /************** Getters **************/
@@ -105,13 +115,12 @@ contract MyLittleDAO {
        return voteSessions[_id];
     }
 
-
     /** @notice Create a new vote session.
-        @dev Session is set has admin.
+        @dev Session creator is set has admin.
         @dev Global session count is incremented.
         @param _title The new vote session Title.
         @param _voteType The new vote type (SimpleVote, PotVote,AdminVote).*/
-    function createnewVoteSession (string calldata _title, VoteType _voteType ) external  {
+    function createnewVoteSession (string calldata _title, VoteType _voteType ) external   {
         require(keccak256(abi.encode(_title)) != keccak256(abi.encode("")), "Title can not be empty");
 
         uint currentSessionId = currentVoteSession;  
@@ -126,4 +135,26 @@ contract MyLittleDAO {
         
         emit sessionCreated(currentSessionId);
     }
+
+    /** @notice Change vote session admin.
+        @dev Only session admin can transfer adminship.
+        @dev Session adminship can not be transfered to 0x0 or actual admin address.
+        @param _address The new vote session admin address.
+        @param _sessionID The vote session ID to  transfer.*/
+    function transferSessionAdmin (address _address, uint _sessionID ) external isSessionAdmin(_sessionID)  {
+        require(_address != address(0), "New admin can't be the zero address");
+        require(_address != voteSessions[_sessionID].sessionAdmin, "New admin can't be the actual admin");
+        
+        address oldAdmin = voteSessions[_sessionID].sessionAdmin;
+        voteSessions[_sessionID].sessionAdmin = _address;
+
+        emit sessionAdminTransferred(_sessionID, oldAdmin, _address);
+    }
+
+
+
+
+
+
+
 }
