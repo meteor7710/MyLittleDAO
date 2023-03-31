@@ -47,7 +47,7 @@ contract MyLittleDAO is Ownable {
 
     struct Session {
         string title;
-        WorkflowStatus voteStatus;
+        WorkflowStatus workflowStatus;
         VoteType voteType;
         address sessionAdmin;
     }
@@ -105,10 +105,30 @@ contract MyLittleDAO is Ownable {
         @param newAdmin The new session admin.*/ 
     event sessionAdminTransferred(uint sessionID, address oldAdmin, address newAdmin);
 
+    /** @notice This event is emitted when a voter is registered.
+        @param voterAddress The voter adress.
+        @param sessionID The session ID.*/
+    event VoterRegistered(address voterAddress, uint64 sessionID);
+
+    /** @notice This event is emitted when a voter is removed.
+        @param voterAddress The voter adress.
+        @param sessionID The session ID.*/
+    event VoterUnregistered(address voterAddress, uint64 sessionID);  
+
     /************** Modifier definitions **************/
 
-    modifier isSessionAdmin(uint _sessionID){  
+    modifier isSessionAdmin(uint64 _sessionID){  
         require ( msg.sender == voteSessions[_sessionID].sessionAdmin ,"You are not the session admin");
+        _;
+    }
+
+    modifier validateSession (uint64 _sessionID){
+        require( _sessionID < voteSessions.length, "Session doesn't exist");
+        _;
+    }
+
+    modifier validateStatus (uint64 _sessionID, uint8 _status) { 
+        require ( voteSessions[_sessionID].workflowStatus == WorkflowStatus(_status),"Vote status is not correct");
         _;
     }
 
@@ -135,7 +155,7 @@ contract MyLittleDAO is Ownable {
 
 
 
-    /************** Functions **************/
+    /************** Vote sessions **************/
 
     /** @notice Set the max Vote Session available.
         @dev Set state variable maxVoteSession.
@@ -173,7 +193,7 @@ contract MyLittleDAO is Ownable {
         @dev Session adminship can not be transfered to 0x0 or actual admin address.
         @param _address The new vote session admin address.
         @param _sessionID The vote session ID to  transfer.*/
-    function transferSessionAdmin (address _address, uint _sessionID ) external isSessionAdmin(_sessionID)  {
+    function transferSessionAdmin (address _address, uint64 _sessionID ) external validateSession(_sessionID) isSessionAdmin(_sessionID)  {
         require(_address != address(0), "New admin can't be the zero address");
         require(_address != voteSessions[_sessionID].sessionAdmin, "New admin can't be the actual admin");
         
@@ -184,7 +204,27 @@ contract MyLittleDAO is Ownable {
     }
 
 
+    /************** Voters **************/
 
+    /** @notice Add voter to session whitelist.
+        @dev Only session admin can add a voter.
+        @param _address The voter address.
+        @param _sessionID The vote session ID.*/
+    function addVoter(address _address, uint64 _sessionID) external validateSession(_sessionID) isSessionAdmin(_sessionID) validateStatus(_sessionID,0) {
+        require(!voters[_sessionID][_address].isRegistered, "This voter is already registered !");
+        voters[_sessionID][_address].isRegistered = true;
+        emit VoterRegistered(_address,_sessionID);
+    }
+
+    /** @notice Remove voter from session whitelist.
+        @dev Only session admin can remove a voter.
+        @param _address The voter address.
+        @param _sessionID The vote session ID.*/
+    function removeVoter (address _address,uint64 _sessionID) external validateSession(_sessionID) isSessionAdmin(_sessionID) validateStatus(_sessionID,0)  {
+        require(voters[_sessionID][_address].isRegistered, "This voter is not registered !");
+        delete voters[_sessionID][_address];
+        emit VoterUnregistered (_address,_sessionID);
+    }
 
 
 
