@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
+
 pragma solidity 0.8.19;
+import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 
 
 /** @title A voting system contract
@@ -7,7 +9,7 @@ pragma solidity 0.8.19;
     @notice You can use this contract to manage a vote session with or without asset
     @dev 
 */
-contract MyLittleDAO {
+contract MyLittleDAO is Ownable {
 
     /************** States variables definitions **************/
     uint64 public currentVoteSession;
@@ -87,6 +89,12 @@ contract MyLittleDAO {
         @param amount The amount received. */ 
     event badCallReceived(address voterAddress, uint amount);
 
+    /** @notice This event is emitted when the variable maxVoteSession is modified.
+        @param oldMaxVoteSession The old max vote session limit.
+        @param newMaxVoteSession The new max vote session limit.*/ 
+    event maxVoteSessionModification(uint64 oldMaxVoteSession,uint64 newMaxVoteSession);
+
+
     /** @notice This event is emitted when a bad call is received.
         @param sessionID The new session ID.*/ 
     event sessionCreated(uint sessionID);
@@ -113,6 +121,19 @@ contract MyLittleDAO {
         @return Session The sessions informations*/
     function getSession (uint _id) external view returns (Session memory) {
        return voteSessions[_id];
+    }
+
+
+
+    /************** Functions **************/
+
+    /** @notice Set the max Vote Session available.
+        @dev Set state variable maxVoteSession.
+        @param _max The new max session number.*/
+    function setMaxVoteSession (uint64 _max) public  onlyOwner {
+        uint64 oldMaxVoteSession = maxVoteSession;
+        maxVoteSession = _max;
+        emit maxVoteSessionModification(oldMaxVoteSession,_max);
     }
 
     /** @notice Create a new vote session.
