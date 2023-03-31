@@ -142,8 +142,9 @@ contract MyLittleDAO is Ownable {
         @param _title The new vote session Title.
         @param _voteType The new vote type (SimpleVote, PotVote,AdminVote).*/
     function createnewVoteSession (string calldata _title, VoteType _voteType ) external   {
+        require((currentVoteSession < maxVoteSession), "Max vote session reached");
         require(keccak256(abi.encode(_title)) != keccak256(abi.encode("")), "Title can not be empty");
-
+        
         uint currentSessionId = currentVoteSession;  
         currentVoteSession = ++currentVoteSession;
 
