@@ -35,11 +35,29 @@ contract("MyLittleDAO tests", accounts => {
         it("has started maxVoterperSession to 100", async () => {
             expect(await votingInstance.maxVoterperSession.call()).to.be.bignumber.equal("100");
         });
-
-        /*it("has started workflowStatus to RegisteringVoters(0)", async () => {
-            expect(await votingInstance.workflowStatus.call()).to.be.bignumber.equal("0");
-        });*/
     })
+
+    //Initial state variables tests
+    describe("Intial state variables modifications", () => {
+
+        it("owner can change maxVoteSession", async () => {
+            expect(await votingInstance.setMaxVoteSession(100,{ from: _owner }));
+            expect(await votingInstance.maxVoteSession.call()).to.be.bignumber.equal("100");
+        });
+
+        it("non-owner can't change change maxVoteSession", async () => {
+            await expectRevert(votingInstance.setMaxVoteSession(100,{ from: _voter1 }), 'Ownable: caller is not the owner');
+        });
+
+        it("event is correctly emmited when maxVoteSession is modified", async () => {
+            const changeStatus = await votingInstance.setMaxVoteSession(100,{ from: _owner });
+            await expectEvent(changeStatus, "maxVoteSessionModification", { oldMaxVoteSession: BN(10000), newMaxVoteSession: BN(100) });
+        });
+
+
+    })
+
+
 
     
     //Getters tests
