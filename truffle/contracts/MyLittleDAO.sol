@@ -20,7 +20,7 @@ contract MyLittleDAO is Ownable {
     Session[] voteSessions;
 
     /************** Mappings defnitions **************/
-    mapping(uint8 => mapping(address => Voter)) voters;
+    mapping(uint64 => mapping(address => Voter)) voters;
 
     /************** Enumartions definitions **************/
     enum WorkflowStatus {
@@ -112,6 +112,16 @@ contract MyLittleDAO is Ownable {
         _;
     }
 
+    modifier onlyAdminOrVoters(uint64 _sessionID) {
+        require(voters[_sessionID][msg.sender].isRegistered || msg.sender == voteSessions[_sessionID].sessionAdmin, "You're not a voter or admin of this session");
+        _;
+    }
+
+    modifier onlyVoters(uint64 _sessionID) {
+        require(voters[_sessionID][msg.sender].isRegistered , "You're not a voter of this session");
+        _;
+    }
+
 
     /************** Getters **************/
 
@@ -119,7 +129,7 @@ contract MyLittleDAO is Ownable {
         @dev Retrieve session attributes.
         @param _id The session ID to query.
         @return Session The sessions informations*/
-    function getSession (uint _id) external view returns (Session memory) {
+    function getSession (uint64 _id) external onlyAdminOrVoters(_id) view  returns (Session memory) {
        return voteSessions[_id];
     }
 
