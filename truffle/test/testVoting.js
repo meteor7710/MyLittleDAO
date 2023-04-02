@@ -79,7 +79,7 @@ contract("MyLittleDAO tests", accounts => {
                 expect(session0.title).to.equal("Session 0");
                 expect(session0.sessionAdmin).to.equal(_voter1);
                 expect(session0.voteType).to.be.bignumber.equal("0");
-                expect(session0.voteStatus).to.be.bignumber.equal("0");
+                expect(session0.workflowStatus).to.be.bignumber.equal("0");
                 expect(session1.title).to.equal("Session 1");
                 expect(session1.voteType).to.be.bignumber.equal("1");
                 expect(session2.title).to.equal("Session 2");
