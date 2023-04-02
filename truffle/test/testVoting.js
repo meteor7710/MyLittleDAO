@@ -187,10 +187,8 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("admin can't add voters when status is not RegisteringVoters", async () => {
-               //TO DO
-               //TO DO
-               //TO DO
-               //TO DO
+                await votingInstance.changeWorkflowStatus( 0, { from: _voter1 });
+                await expectRevert(votingInstance.addVoter(_voter2, 0, { from: _voter1 }), "Session status is not correct");
             });
 
             it("event is correctly emmited when a voter is added", async () => {
@@ -218,10 +216,8 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("admin can't remove voters when status is not RegisteringVoters", async () => {
-               //TO DO
-               //TO DO
-               //TO DO
-               //TO DO
+                await votingInstance.changeWorkflowStatus( 0, { from: _voter1 });
+                await expectRevert(votingInstance.removeVoter(_voter2, 0, { from: _voter1 }), "Session status is not correct");
             });
 
             it("event is correctly emmited when a voter is removed", async () => {

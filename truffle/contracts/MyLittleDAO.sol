@@ -134,7 +134,7 @@ contract MyLittleDAO is Ownable {
     }
 
     modifier validateStatus (uint64 _sessionID, uint8 _status) { 
-        require ( voteSessions[_sessionID].workflowStatus == WorkflowStatus(_status),"Vote status is not correct");
+        require ( voteSessions[_sessionID].workflowStatus == WorkflowStatus(_status),"Session status is not correct");
         _;
     }
 
