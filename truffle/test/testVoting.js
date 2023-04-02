@@ -169,10 +169,10 @@ contract("MyLittleDAO tests", accounts => {
 
     //Voters tests
     describe("Voter tests", () => {
+        beforeEach(async () => {
+            await votingInstance.createnewVoteSession("Session 0", 0, { from: _voter1 });
+        });
         describe("Add voter tests", () => {
-            beforeEach(async () => {
-                await votingInstance.createnewVoteSession("Session 0", 0, { from: _voter1 });
-            });
             
             it("admin can add voters", async () => {
                 expect(await votingInstance.addVoter(_voter2, 0, { from: _voter1 }));
@@ -198,6 +198,38 @@ contract("MyLittleDAO tests", accounts => {
                 await expectEvent(evenTx, "VoterRegistered", { voterAddress: _voter2, sessionID: BN(0) });
                 const evenTx2 = await votingInstance.addVoter(_voter3, 0, { from: _voter1 });
                 await expectEvent(evenTx2, "VoterRegistered", { voterAddress: _voter3, sessionID: BN(0) });
+            });
+        });
+        describe("Remove voter tests", () => {
+            beforeEach(async () => {
+                await votingInstance.addVoter(_voter2, 0, { from: _voter1 });
+            });
+            
+            it("admin can remove voters", async () => {
+                expect(await votingInstance.removeVoter(_voter2, 0, { from: _voter1 }));
+            });
+
+            it("non-admin can't remove voters", async () => {
+                await expectRevert(votingInstance.removeVoter(_voter2, 0, { from: _nonVoter }), "You are not the session admin");
+            });
+
+            it("admin can't remove voters to an unexisting session", async () => {
+                await expectRevert(votingInstance.removeVoter(_voter2, 1, { from: _voter1 }), "Session doesn't exist");
+            });
+
+            it("admin can't remove voters when status is not RegisteringVoters", async () => {
+               //TO DO
+               //TO DO
+               //TO DO
+               //TO DO
+            });
+
+            it("event is correctly emmited when a voter is removed", async () => {
+                await votingInstance.addVoter(_voter3, 0, { from: _voter1 });
+                const evenTx = await votingInstance.removeVoter(_voter2, 0, { from: _voter1 });
+                await expectEvent(evenTx, "VoterUnregistered", { voterAddress: _voter2, sessionID: BN(0) });
+                const evenTx2 = await votingInstance.removeVoter(_voter3, 0, { from: _voter1 });
+                await expectEvent(evenTx2, "VoterUnregistered", { voterAddress: _voter3, sessionID: BN(0) });
             });
         });
 
