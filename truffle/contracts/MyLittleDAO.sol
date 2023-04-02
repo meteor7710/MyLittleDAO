@@ -113,7 +113,13 @@ contract MyLittleDAO is Ownable {
     /** @notice This event is emitted when a voter is removed.
         @param voterAddress The voter adress.
         @param sessionID The session ID.*/
-    event VoterUnregistered(address voterAddress, uint64 sessionID);  
+    event VoterUnregistered(address voterAddress, uint64 sessionID);
+
+    /** @notice This event is emitted a session workflowstatus is changed.
+        @param previousStatus The session previous workflowstatus.
+        @param newStatus The session new workflowstatus.
+        @param sessionID The session ID.*/
+    event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus,uint64 sessionID);  
 
     /************** Modifier definitions **************/
 
@@ -227,6 +233,18 @@ contract MyLittleDAO is Ownable {
     }
 
 
+    /************** Change Session Status **************/
 
+    /** @notice Change the workflowstatus of a session.
+        @dev Only session admin can change workflowstatus.
+        @param _sessionID The vote session ID.*/
+    function changeWorkflowStatus (uint64 _sessionID) external validateSession(_sessionID) isSessionAdmin(_sessionID) {
+        require((voteSessions[_sessionID].workflowStatus != WorkflowStatus.VotesTallied), "This Session is already finished !");
+
+        WorkflowStatus previousStatus = voteSessions[_sessionID].workflowStatus;
+        voteSessions[_sessionID].workflowStatus = WorkflowStatus(uint(voteSessions[_sessionID].workflowStatus) + 1);
+
+        emit WorkflowStatusChange (previousStatus, voteSessions[_sessionID].workflowStatus,_sessionID);
+    }
 
 }
