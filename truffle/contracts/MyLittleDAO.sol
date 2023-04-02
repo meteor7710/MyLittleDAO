@@ -149,7 +149,7 @@ contract MyLittleDAO is Ownable {
         @dev Retrieve session attributes.
         @param _id The session ID to query.
         @return Session The sessions informations*/
-    function getSession (uint64 _id) external onlyAdminOrVoters(_id) view  returns (Session memory) {
+    function getSession (uint64 _id) external validateSession(_id) onlyAdminOrVoters(_id) view  returns (Session memory) {
        return voteSessions[_id];
     }
 
