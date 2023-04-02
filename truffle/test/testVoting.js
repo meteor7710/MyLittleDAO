@@ -108,6 +108,25 @@ contract("MyLittleDAO tests", accounts => {
                 await expectEvent(session2, "sessionCreated", { sessionID: BN(1) });
             });
         })
+
+        describe("Session get information tests", () => {
+            it("admin can get session information", async () => {
+                await votingInstance.createnewVoteSession("Session 0", 0, { from: _voter1 });
+                expect(await votingInstance.getSession( 0, { from: _voter1 }));
+            });
+
+            it("voter can get session information", async () => {
+                await votingInstance.createnewVoteSession("Session 0", 0, { from: _voter1 });
+                await votingInstance.addVoter(_voter2, 0, { from: _voter1 });
+                expect(await votingInstance.getSession( 0, { from: _voter2 }));
+            });
+
+            it("non-voter can't get session information", async () => {
+                await votingInstance.createnewVoteSession("Session 0", 0, { from: _voter1 });
+                await expectRevert(votingInstance.getSession( 0, { from: _nonVoter }), "You're not a voter or admin of this session");
+            });
+        })
+
         describe("Session adminship transfer tests", () => {
             it("admin can transfer adminship", async () => {
                 await votingInstance.createnewVoteSession("Session 0", 0, { from: _voter1 });
@@ -134,7 +153,7 @@ contract("MyLittleDAO tests", accounts => {
                 const transfer = await votingInstance.transferSessionAdmin(_voter2, 0, { from: _voter1 })
                 await expectEvent(transfer, "sessionAdminTransferred", { sessionID: BN(0), oldAdmin: _voter1, newAdmin: _voter2 });
             });
-        })
+        }) 
     })
 
 
