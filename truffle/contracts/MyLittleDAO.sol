@@ -182,6 +182,7 @@ contract MyLittleDAO is Ownable {
         @dev Retrieve session attributes.
         @param _id The session ID to query.
         @return Session The sessions informations*/
+
     function getSession (uint64 _id) external validateSession(_id) onlyAdminOrVoters(_id) view  returns (Session memory) {
        return voteSessions[_id];
     }
@@ -191,6 +192,7 @@ contract MyLittleDAO is Ownable {
         @param _ProposalID The session ID to query.
         @param _SessionID The session ID to query.
         @return Session The sessions informations*/
+
     function getProposal (uint16 _ProposalID,uint64 _SessionID) external validateSession(_SessionID) onlyAdminOrVoters(_SessionID) view  returns (Proposal memory) {
        return voteProposals[_ProposalID];
     }
@@ -202,6 +204,7 @@ contract MyLittleDAO is Ownable {
     /** @notice Set the max Vote Session available.
         @dev Set state variable maxVoteSession.
         @param _max The new max session number.*/
+
     function setMaxVoteSession (uint64 _max) public  onlyOwner {
         uint64 oldMaxVoteSession = maxVoteSession;
         maxVoteSession = _max;
@@ -213,6 +216,7 @@ contract MyLittleDAO is Ownable {
         @dev Global session count is incremented.
         @param _title The new vote session Title.
         @param _voteType The new vote type (SimpleVote, PotVote,AdminVote).*/
+
     function createnewVoteSession (string calldata _title, VoteType _voteType ) external   {
         require(( voteSessions.length-1 < maxVoteSession), "Max vote session reached");
         require(keccak256(abi.encode(_title)) != keccak256(abi.encode("")), "Title can not be empty");
@@ -232,6 +236,7 @@ contract MyLittleDAO is Ownable {
         @dev Session adminship can not be transfered to 0x0 or actual admin address.
         @param _address The new vote session admin address.
         @param _sessionID The vote session ID to  transfer.*/
+
     function transferSessionAdmin (address _address, uint64 _sessionID ) external validateSession(_sessionID) isSessionAdmin(_sessionID)  {
         require(_address != address(0), "New admin can't be the zero address");
         require(_address != voteSessions[_sessionID].sessionAdmin, "New admin can't be the actual admin");
@@ -249,6 +254,7 @@ contract MyLittleDAO is Ownable {
         @dev Only session admin can add a voter.
         @param _address The voter address.
         @param _sessionID The vote session ID.*/
+
     function addVoter(address _address, uint64 _sessionID) external validateSession(_sessionID) isSessionAdmin(_sessionID) validateStatus(_sessionID,0) {
         require(!voters[_sessionID][_address].isRegistered, "This voter is already registered !");
         require((voteSessions[_sessionID].sessionVoters < maxVoterperSession), "Max voter per session reached");
@@ -261,6 +267,7 @@ contract MyLittleDAO is Ownable {
         @dev Only session admin can remove a voter.
         @param _address The voter address.
         @param _sessionID The vote session ID.*/
+
     function removeVoter (address _address,uint64 _sessionID) external validateSession(_sessionID) isSessionAdmin(_sessionID) validateStatus(_sessionID,0)  {
         require(voters[_sessionID][_address].isRegistered, "This voter is not registered !");
         delete voters[_sessionID][_address];
@@ -271,6 +278,7 @@ contract MyLittleDAO is Ownable {
     /** @notice Set the max voters per Session .
         @dev Set state variable maxVoterperSession.
         @param _max The new max voter number.*/
+
     function setMaxVoterperSession (uint16 _max) public  onlyOwner {
         uint16 oldMaxVoter = maxVoterperSession;
         maxVoterperSession = _max;
@@ -283,6 +291,7 @@ contract MyLittleDAO is Ownable {
     /** @notice Change the workflowstatus of a session.
         @dev Only session admin can change workflowstatus.
         @param _sessionID The vote session ID.*/
+
     function changeWorkflowStatus (uint64 _sessionID) external validateSession(_sessionID) isSessionAdmin(_sessionID) {
         require((voteSessions[_sessionID].workflowStatus != WorkflowStatus.VotesTallied), "This Session is already finished !");
 
@@ -299,6 +308,7 @@ contract MyLittleDAO is Ownable {
         @dev Restricted to internal usage.
         @param _sessionID The vote session ID.
         @return nbProposals The number of proposal in the session*/
+
     function getSessionCurrentProposalID (uint64 _sessionID) internal view returns (uint16 nbProposals) {
         uint8 i;
         uint16 currentID;  
@@ -312,6 +322,7 @@ contract MyLittleDAO is Ownable {
         @dev Only session voters can add a proposal.
         @param _decription The proposal description.
         @param _sessionID The vote session ID.*/
+
     function registerProposal (string calldata _decription, uint64 _sessionID) external validateSession(_sessionID) onlyVoters(_sessionID) validateStatus(_sessionID,1) {
         uint16 currentProposalID = getSessionCurrentProposalID (_sessionID);
         require((currentProposalID < maxProposalperSession), "Max proposal per session reached");
@@ -325,7 +336,8 @@ contract MyLittleDAO is Ownable {
 
     /** @notice Set the max proposal per Session .
         @dev Set state variable maxVoterperSession.
-        @param _max The new max voter number.*/
+        @param _max The new max voter number.*/       
+
     function setMaxProposalperSession (uint16 _max) public  onlyOwner {
         uint16 oldMaxProposal = maxProposalperSession;
         maxProposalperSession = _max;

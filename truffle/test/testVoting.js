@@ -245,7 +245,7 @@ contract("MyLittleDAO tests", accounts => {
             });
         });
     });
-
+    
     //Voters tests
     describe("Proposal tests", () => {
         beforeEach(async () => {
@@ -289,9 +289,18 @@ contract("MyLittleDAO tests", accounts => {
                 expect(await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 }));
                 await expectRevert(votingInstance.registerProposal("Proposal 2", 1, { from: _voter3 }), "Max proposal per session reached");
             });
+            
+            it("event is correctly emmited when a proposal is created", async () => {
+                const evenTx = await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 });
+                await expectEvent(evenTx, "ProposalRegistered", { proposalId: BN(1), sessionID: BN(1) });
+                const evenTx2 = await votingInstance.registerProposal("Proposal 2", 1, { from: _voter2 });
+                await expectEvent(evenTx2, "ProposalRegistered", { proposalId: BN(2), sessionID: BN(1) });
+            });
         
         });
 
+
+    });
 
     });
 
