@@ -53,6 +53,12 @@ contract("MyLittleDAO tests", accounts => {
             const evenTx = await votingInstance.setMaxVoteSession(100, { from: _owner });
             await expectEvent(evenTx, "maxVoteSessionModification", { oldMaxVoteSession: BN(10000), newMaxVoteSession: BN(100) });
         });
+
+        it("event is correctly emmited when maxVoterperSessionModification is modified", async () => {
+            const evenTx = await votingInstance.setMaxVoterperSession(10, { from: _owner });
+            await expectEvent(evenTx, "maxVoterperSessionModification", { oldMaxVoterperSession: BN(100), newMaxVoterperSession: BN(10) });
+        });
+
     });
 
     //Session tests
@@ -197,7 +203,22 @@ contract("MyLittleDAO tests", accounts => {
                 const evenTx2 = await votingInstance.addVoter(_voter3, 0, { from: _voter1 });
                 await expectEvent(evenTx2, "VoterRegistered", { voterAddress: _voter3, sessionID: BN(0) });
             });
+
+            it("sessionVoters is correctly incremented", async () => {
+                let session = await votingInstance.getSession.call(0, { from: _voter1 });
+                expect(await session.sessionVoters).to.be.bignumber.equal("0");
+                await votingInstance.addVoter(_voter2, 0, { from: _voter1 });
+                session = await votingInstance.getSession.call(0, { from: _voter1 });
+                expect(await session.sessionVoters).to.be.bignumber.equal("1");
+            });
+
+            it("maxVoterperSession blocks new voters", async () => {
+                await votingInstance.setMaxVoterperSession(1, { from: _owner });
+                expect(await votingInstance.addVoter(_voter2, 0, { from: _voter1 }));
+                await expectRevert(votingInstance.addVoter(_voter3, 0, { from: _voter1 }), "Max voter per session reached");
+            });
         });
+
         describe("Remove voter tests", () => {
             beforeEach(async () => {
                 await votingInstance.addVoter(_voter2, 0, { from: _voter1 });
@@ -226,6 +247,14 @@ contract("MyLittleDAO tests", accounts => {
                 await expectEvent(evenTx, "VoterUnregistered", { voterAddress: _voter2, sessionID: BN(0) });
                 const evenTx2 = await votingInstance.removeVoter(_voter3, 0, { from: _voter1 });
                 await expectEvent(evenTx2, "VoterUnregistered", { voterAddress: _voter3, sessionID: BN(0) });
+            });
+
+            it("sessionVoters is correctly decremented", async () => {
+                let session = await votingInstance.getSession.call(0, { from: _voter1 });
+                expect(await session.sessionVoters).to.be.bignumber.equal("1");
+                await votingInstance.removeVoter(_voter2, 0, { from: _voter1 })
+                session = await votingInstance.getSession.call(0, { from: _voter1 });
+                expect(await session.sessionVoters).to.be.bignumber.equal("0");
             });
         });
 

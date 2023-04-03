@@ -224,6 +224,7 @@ contract MyLittleDAO is Ownable {
         @param _sessionID The vote session ID.*/
     function addVoter(address _address, uint64 _sessionID) external validateSession(_sessionID) isSessionAdmin(_sessionID) validateStatus(_sessionID,0) {
         require(!voters[_sessionID][_address].isRegistered, "This voter is already registered !");
+        require((voteSessions[_sessionID].sessionVoters < maxVoterperSession), "Max voter per session reached");
         voters[_sessionID][_address].isRegistered = true;
         voteSessions[_sessionID].sessionVoters = ++voteSessions[_sessionID].sessionVoters;
         emit VoterRegistered(_address,_sessionID);
@@ -263,5 +264,10 @@ contract MyLittleDAO is Ownable {
 
         emit WorkflowStatusChange (previousStatus, voteSessions[_sessionID].workflowStatus,_sessionID);
     }
+
+
+     /************** Voters **************/
+
+     
 
 }
