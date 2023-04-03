@@ -336,8 +336,8 @@ contract MyLittleDAO is Ownable {
 
     /** @notice Set the max proposal per Session .
         @dev Set state variable maxVoterperSession.
-        @param _max The new max voter number.*/
-        
+        @param _max The new max voter number.*/       
+
     function setMaxProposalperSession (uint16 _max) public  onlyOwner {
         uint16 oldMaxProposal = maxProposalperSession;
         maxProposalperSession = _max;

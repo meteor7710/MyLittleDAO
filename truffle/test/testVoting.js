@@ -245,7 +245,7 @@ contract("MyLittleDAO tests", accounts => {
             });
         });
     });
-
+    
     //Voters tests
     describe("Proposal tests", () => {
         beforeEach(async () => {
@@ -299,6 +299,8 @@ contract("MyLittleDAO tests", accounts => {
         
         });
 
+
+    });
 
     });
 
