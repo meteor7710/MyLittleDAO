@@ -18,6 +18,7 @@ contract MyLittleDAO is Ownable {
     uint16 public maxVoterperSession;
 
     Session[] voteSessions;
+    Proposal[] voteProposals;
 
     /************** Mappings defnitions **************/
     mapping(uint64 => mapping(address => Voter)) voters;
@@ -56,6 +57,7 @@ contract MyLittleDAO is Ownable {
     struct Proposal {
         string description;
         uint16 voteCount;
+        uint64 voteSession;
     }
 
     /** @notice Initialize default contract values
@@ -64,6 +66,16 @@ contract MyLittleDAO is Ownable {
         maxVoteSession = 10000;
         maxProposalperSession = 100;
         maxVoterperSession = 100;
+
+        Session memory genesisSession;
+        genesisSession.sessionAdmin = msg.sender;
+        genesisSession.title = "Genesis session";
+        voteSessions.push(genesisSession);
+
+        Proposal memory genesisProposal = Proposal ("Genesis proposal",0,0);
+        voteProposals.push(genesisProposal);
+
+
     }
 
     /// @notice Default function to receive coins
@@ -126,6 +138,11 @@ contract MyLittleDAO is Ownable {
         @param newStatus The session new workflowstatus.
         @param sessionID The session ID.*/
     event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus,uint64 sessionID);  
+
+    /** @notice This event is emitted when a proposal is registrered.
+        @param proposalId The registered proposal ID.
+        @param sessionID The session ID.*/
+    event ProposalRegistered(uint16 proposalId,uint64 sessionID);
 
     /************** Modifier definitions **************/
 
@@ -266,8 +283,34 @@ contract MyLittleDAO is Ownable {
     }
 
 
-     /************** Voters **************/
+    /************** Proposals **************/
 
-     
+    /** @notice Get number of existing proposals for a session.
+        @dev Restricted to internal usage.
+        @param _sessionID The vote session ID.
+        @return nbProposals The number of proposal in the session*/
+    function getSessionCurrentProposalID (uint64 _sessionID) internal view returns (uint16 nbProposals) {
+        uint8 i;
+        uint16 currentID;  
+        for (i=0;i< voteProposals.length;i++){
+            if (voteProposals[i].voteSession ==_sessionID) { currentID = ++currentID; }
+        }
+        return currentID;
+    }
+
+    /** @notice Register a new  proposal to a vote session.
+        @dev Only session voters can add a proposal.
+        @param _decription The proposal description.
+        @param _sessionID The vote session ID.*/
+    function registerProposal (string calldata _decription, uint64 _sessionID) external validateSession(_sessionID) onlyVoters(_sessionID) validateStatus(_sessionID,1) {
+
+        Proposal memory newProposal = Proposal (_decription,0,_sessionID);
+        voteProposals.push(newProposal);
+        uint16 currentProposalID = getSessionCurrentProposalID (_sessionID);
+        
+        emit ProposalRegistered(currentProposalID+1,_sessionID);
+    }
+
+
 
 }

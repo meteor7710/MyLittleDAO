@@ -76,20 +76,20 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("session attributes are correctly stored", async () => {
-                await votingInstance.createnewVoteSession("Session 0", 0, { from: _voter1 });
-                await votingInstance.createnewVoteSession("Session 1", 1, { from: _voter1 });
-                await votingInstance.createnewVoteSession("Session 2", 2, { from: _voter1 });
-                const session0 = await votingInstance.getSession.call(0, { from: _voter1 });
+                await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
+                await votingInstance.createnewVoteSession("Session 2", 1, { from: _voter1 });
+                await votingInstance.createnewVoteSession("Session 3", 2, { from: _voter1 });
                 const session1 = await votingInstance.getSession.call(1, { from: _voter1 });
                 const session2 = await votingInstance.getSession.call(2, { from: _voter1 });
-                expect(session0.title).to.equal("Session 0");
-                expect(session0.sessionAdmin).to.equal(_voter1);
-                expect(session0.voteType).to.be.bignumber.equal("0");
-                expect(session0.workflowStatus).to.be.bignumber.equal("0");
+                const session3 = await votingInstance.getSession.call(3, { from: _voter1 });
                 expect(session1.title).to.equal("Session 1");
-                expect(session1.voteType).to.be.bignumber.equal("1");
+                expect(session1.sessionAdmin).to.equal(_voter1);
+                expect(session1.voteType).to.be.bignumber.equal("0");
+                expect(session1.workflowStatus).to.be.bignumber.equal("0");
                 expect(session2.title).to.equal("Session 2");
-                expect(session2.voteType).to.be.bignumber.equal("2");
+                expect(session2.voteType).to.be.bignumber.equal("1");
+                expect(session3.title).to.equal("Session 3");
+                expect(session3.voteType).to.be.bignumber.equal("2");
             });
 
             it("currentVoteSession is correctly incremented", async () => {
@@ -117,58 +117,58 @@ contract("MyLittleDAO tests", accounts => {
 
         describe("Session get information tests", () => {
             it("admin can get session information", async () => {
-                await votingInstance.createnewVoteSession("Session 0", 0, { from: _voter1 });
-                expect(await votingInstance.getSession( 0, { from: _voter1 }));
+                await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
+                expect(await votingInstance.getSession( 1, { from: _voter1 }));
             });
 
             it("voter can get session information", async () => {
-                await votingInstance.createnewVoteSession("Session 0", 0, { from: _voter1 });
-                await votingInstance.addVoter(_voter2, 0, { from: _voter1 });
-                expect(await votingInstance.getSession( 0, { from: _voter2 }));
+                await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
+                await votingInstance.addVoter(_voter2, 1, { from: _voter1 });
+                expect(await votingInstance.getSession( 1, { from: _voter2 }));
             });
 
             it("admin and voter can't get information tests of an unexisting session", async () => {
-                await votingInstance.createnewVoteSession("Session 0", 0, { from: _voter1 });
-                await expectRevert(votingInstance.getSession( 1, { from: _voter1 }), "Session doesn't exist");
-                await expectRevert(votingInstance.getSession( 1, { from: _voter2 }), "Session doesn't exist");
+                await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
+                await expectRevert(votingInstance.getSession( 2, { from: _voter1 }), "Session doesn't exist");
+                await expectRevert(votingInstance.getSession( 2, { from: _voter2 }), "Session doesn't exist");
             });
 
             it("non-voter can't get session information", async () => {
                 
-                await votingInstance.createnewVoteSession("Session 0", 0, { from: _voter1 });
-                await expectRevert(votingInstance.getSession( 0, { from: _nonVoter }), "You're not a voter or admin of this session");
+                await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
+                await expectRevert(votingInstance.getSession( 1, { from: _nonVoter }), "You're not a voter or admin of this session");
             });
         })
 
         describe("Session adminship transfer tests", () => {
             it("admin can transfer adminship", async () => {
-                await votingInstance.createnewVoteSession("Session 0", 0, { from: _voter1 });
-                expect(await votingInstance.transferSessionAdmin(_voter2, 0, { from: _voter1 }));
+                await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
+                expect(await votingInstance.transferSessionAdmin(_voter2, 1, { from: _voter1 }));
             });
 
             it("non-admin can't transfer adminship", async () => {
-                await votingInstance.createnewVoteSession("Session 0", 0, { from: _voter1 });
-                await expectRevert(votingInstance.transferSessionAdmin(_voter2, 0, { from: _voter2 }), "You are not the session admin");
+                await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
+                await expectRevert(votingInstance.transferSessionAdmin(_voter2, 1, { from: _voter2 }), "You are not the session admin");
             });
 
             it("admin can't transfer adminship to adress 0", async () => {
-                await votingInstance.createnewVoteSession("Session 0", 0, { from: _voter1 });
-                await expectRevert(votingInstance.transferSessionAdmin("0x0000000000000000000000000000000000000000", 0, { from: _voter1 }), "New admin can't be the zero address");
+                await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
+                await expectRevert(votingInstance.transferSessionAdmin("0x0000000000000000000000000000000000000000", 1, { from: _voter1 }), "New admin can't be the zero address");
             });
 
             it("admin can't transfer adminship to itself", async () => {
-                await votingInstance.createnewVoteSession("Session 0", 0, { from: _voter1 });
-                await expectRevert(votingInstance.transferSessionAdmin(_voter1, 0, { from: _voter1 }), "New admin can't be the actual admin");
+                await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
+                await expectRevert(votingInstance.transferSessionAdmin(_voter1, 1, { from: _voter1 }), "New admin can't be the actual admin");
             });
 
             it("admin can't transfer adminship of an unexisting session", async () => {
-                await expectRevert(votingInstance.transferSessionAdmin(_voter1, 1, { from: _voter1 }), "Session doesn't exist");
+                await expectRevert(votingInstance.transferSessionAdmin(_voter1, 2, { from: _voter1 }), "Session doesn't exist");
             });
 
             it("event is correctly emmited when a session adminship is transfered", async () => {
                 await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
-                const evenTx = await votingInstance.transferSessionAdmin(_voter2, 0, { from: _voter1 })
-                await expectEvent(evenTx, "sessionAdminTransferred", { sessionID: BN(0), oldAdmin: _voter1, newAdmin: _voter2 });
+                const evenTx = await votingInstance.transferSessionAdmin(_voter2, 1, { from: _voter1 })
+                await expectEvent(evenTx, "sessionAdminTransferred", { sessionID: BN(1), oldAdmin: _voter1, newAdmin: _voter2 });
             });
         }) 
     });
@@ -176,84 +176,84 @@ contract("MyLittleDAO tests", accounts => {
     //Voters tests
     describe("Voter tests", () => {
         beforeEach(async () => {
-            await votingInstance.createnewVoteSession("Session 0", 0, { from: _voter1 });
+            await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
         });
         describe("Add voter tests", () => {
             
             it("admin can add voters", async () => {
-                expect(await votingInstance.addVoter(_voter2, 0, { from: _voter1 }));
+                expect(await votingInstance.addVoter(_voter2, 1, { from: _voter1 }));
             });
 
             it("non-admin can't add voters", async () => {
-                await expectRevert(votingInstance.addVoter(_voter2, 0, { from: _nonVoter }), "You are not the session admin");
+                await expectRevert(votingInstance.addVoter(_voter2, 1, { from: _nonVoter }), "You are not the session admin");
             });
 
             it("admin can't add voters to an unexisting session", async () => {
-                await expectRevert(votingInstance.addVoter(_voter2, 1, { from: _voter1 }), "Session doesn't exist");
+                await expectRevert(votingInstance.addVoter(_voter2, 2, { from: _voter1 }), "Session doesn't exist");
             });
 
             it("admin can't add voters when status is not RegisteringVoters", async () => {
-                await votingInstance.changeWorkflowStatus( 0, { from: _voter1 });
-                await expectRevert(votingInstance.addVoter(_voter2, 0, { from: _voter1 }), "Session status is not correct");
+                await votingInstance.changeWorkflowStatus( 1, { from: _voter1 });
+                await expectRevert(votingInstance.addVoter(_voter2, 1, { from: _voter1 }), "Session status is not correct");
             });
 
             it("event is correctly emmited when a voter is added", async () => {
-                const evenTx = await votingInstance.addVoter(_voter2, 0, { from: _voter1 });
-                await expectEvent(evenTx, "VoterRegistered", { voterAddress: _voter2, sessionID: BN(0) });
-                const evenTx2 = await votingInstance.addVoter(_voter3, 0, { from: _voter1 });
-                await expectEvent(evenTx2, "VoterRegistered", { voterAddress: _voter3, sessionID: BN(0) });
+                const evenTx = await votingInstance.addVoter(_voter2, 1, { from: _voter1 });
+                await expectEvent(evenTx, "VoterRegistered", { voterAddress: _voter2, sessionID: BN(1) });
+                const evenTx2 = await votingInstance.addVoter(_voter3, 1, { from: _voter1 });
+                await expectEvent(evenTx2, "VoterRegistered", { voterAddress: _voter3, sessionID: BN(1) });
             });
 
             it("sessionVoters is correctly incremented", async () => {
-                let session = await votingInstance.getSession.call(0, { from: _voter1 });
+                let session = await votingInstance.getSession.call(1, { from: _voter1 });
                 expect(await session.sessionVoters).to.be.bignumber.equal("0");
-                await votingInstance.addVoter(_voter2, 0, { from: _voter1 });
-                session = await votingInstance.getSession.call(0, { from: _voter1 });
+                await votingInstance.addVoter(_voter2, 1, { from: _voter1 });
+                session = await votingInstance.getSession.call(1, { from: _voter1 });
                 expect(await session.sessionVoters).to.be.bignumber.equal("1");
             });
 
             it("maxVoterperSession blocks new voters", async () => {
                 await votingInstance.setMaxVoterperSession(1, { from: _owner });
-                expect(await votingInstance.addVoter(_voter2, 0, { from: _voter1 }));
-                await expectRevert(votingInstance.addVoter(_voter3, 0, { from: _voter1 }), "Max voter per session reached");
+                expect(await votingInstance.addVoter(_voter2, 1, { from: _voter1 }));
+                await expectRevert(votingInstance.addVoter(_voter3, 1, { from: _voter1 }), "Max voter per session reached");
             });
         });
 
         describe("Remove voter tests", () => {
             beforeEach(async () => {
-                await votingInstance.addVoter(_voter2, 0, { from: _voter1 });
+                await votingInstance.addVoter(_voter2, 1, { from: _voter1 });
             });
             
             it("admin can remove voters", async () => {
-                expect(await votingInstance.removeVoter(_voter2, 0, { from: _voter1 }));
+                expect(await votingInstance.removeVoter(_voter2, 1, { from: _voter1 }));
             });
 
             it("non-admin can't remove voters", async () => {
-                await expectRevert(votingInstance.removeVoter(_voter2, 0, { from: _nonVoter }), "You are not the session admin");
+                await expectRevert(votingInstance.removeVoter(_voter2, 1, { from: _nonVoter }), "You are not the session admin");
             });
 
             it("admin can't remove voters to an unexisting session", async () => {
-                await expectRevert(votingInstance.removeVoter(_voter2, 1, { from: _voter1 }), "Session doesn't exist");
+                await expectRevert(votingInstance.removeVoter(_voter2, 2, { from: _voter1 }), "Session doesn't exist");
             });
 
             it("admin can't remove voters when status is not RegisteringVoters", async () => {
-                await votingInstance.changeWorkflowStatus( 0, { from: _voter1 });
-                await expectRevert(votingInstance.removeVoter(_voter2, 0, { from: _voter1 }), "Session status is not correct");
+                await votingInstance.changeWorkflowStatus( 1, { from: _voter1 });
+                await expectRevert(votingInstance.removeVoter(_voter2, 1, { from: _voter1 }), "Session status is not correct");
             });
 
             it("event is correctly emmited when a voter is removed", async () => {
-                await votingInstance.addVoter(_voter3, 0, { from: _voter1 });
-                const evenTx = await votingInstance.removeVoter(_voter2, 0, { from: _voter1 });
-                await expectEvent(evenTx, "VoterUnregistered", { voterAddress: _voter2, sessionID: BN(0) });
-                const evenTx2 = await votingInstance.removeVoter(_voter3, 0, { from: _voter1 });
-                await expectEvent(evenTx2, "VoterUnregistered", { voterAddress: _voter3, sessionID: BN(0) });
+                await votingInstance.addVoter(_voter3, 1, { from: _voter1 });
+                const evenTx = await votingInstance.removeVoter(_voter2, 1, { from: _voter1 });
+                await expectEvent(evenTx, "VoterUnregistered", { voterAddress: _voter2, sessionID: BN(1) });
+                const evenTx2 = await votingInstance.removeVoter(_voter3, 1, { from: _voter1 });
+                await expectEvent(evenTx2, "VoterUnregistered", { voterAddress: _voter3, sessionID: BN(1) });
             });
 
             it("sessionVoters is correctly decremented", async () => {
-                let session = await votingInstance.getSession.call(0, { from: _voter1 });
+                let session = await votingInstance.getSession.call(1, { from: _voter1 });
                 expect(await session.sessionVoters).to.be.bignumber.equal("1");
-                await votingInstance.removeVoter(_voter2, 0, { from: _voter1 })
-                session = await votingInstance.getSession.call(0, { from: _voter1 });
+                await votingInstance.removeVoter(_voter2, 1, { from: _voter1 })
+                session = await votingInstance.getSession.call(1, { from: _voter1 });
                 expect(await session.sessionVoters).to.be.bignumber.equal("0");
             });
         });
