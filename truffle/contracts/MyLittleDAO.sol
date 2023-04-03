@@ -12,7 +12,6 @@ import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 contract MyLittleDAO is Ownable {
 
     /************** States variables definitions **************/
-    uint64 public currentVoteSession;
     uint64 public maxVoteSession;
     uint16 public maxProposalperSession;
     uint16 public maxVoterperSession;
@@ -201,11 +200,8 @@ contract MyLittleDAO is Ownable {
         @param _title The new vote session Title.
         @param _voteType The new vote type (SimpleVote, PotVote,AdminVote).*/
     function createnewVoteSession (string calldata _title, VoteType _voteType ) external   {
-        require((currentVoteSession < maxVoteSession), "Max vote session reached");
+        require(( voteSessions.length-1 < maxVoteSession), "Max vote session reached");
         require(keccak256(abi.encode(_title)) != keccak256(abi.encode("")), "Title can not be empty");
-        
-        uint currentSessionId = currentVoteSession;  
-        currentVoteSession = ++currentVoteSession;
 
         Session memory newSession;
         newSession.sessionAdmin = msg.sender;
@@ -214,7 +210,7 @@ contract MyLittleDAO is Ownable {
 
         voteSessions.push(newSession);
         
-        emit sessionCreated(currentSessionId);
+        emit sessionCreated(voteSessions.length-1);
     }
 
     /** @notice Change vote session admin.

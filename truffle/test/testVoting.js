@@ -20,10 +20,6 @@ contract("MyLittleDAO tests", accounts => {
     //Initial state variables tests
     describe("Intial state variables tests", () => {
 
-        it("has started currentVoteSession to 0", async () => {
-            expect(await votingInstance.currentVoteSession.call()).to.be.bignumber.equal("0");
-        });
-
         it("has started maxVoteSession to 10000", async () => {
             expect(await votingInstance.maxVoteSession.call()).to.be.bignumber.equal("10000");
         });
@@ -92,15 +88,6 @@ contract("MyLittleDAO tests", accounts => {
                 expect(session3.voteType).to.be.bignumber.equal("2");
             });
 
-            it("currentVoteSession is correctly incremented", async () => {
-                await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
-                expect(await votingInstance.currentVoteSession.call()).to.be.bignumber.equal("1");
-                await votingInstance.createnewVoteSession("Session 2", 1, { from: _voter2 });
-                expect(await votingInstance.currentVoteSession.call()).to.be.bignumber.equal("2");
-                await votingInstance.createnewVoteSession("Session 3", 2, { from: _voter3 });
-                expect(await votingInstance.currentVoteSession.call()).to.be.bignumber.equal("3");
-            });
-
             it("maxVoteSession blocks new session creation", async () => {
                 await votingInstance.setMaxVoteSession(1, { from: _owner });
                 expect(await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 }));
@@ -109,9 +96,9 @@ contract("MyLittleDAO tests", accounts => {
 
             it("event is correctly emmited when a session is created", async () => {
                 const evenTx = await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
-                await expectEvent(evenTx, "sessionCreated", { sessionID: BN(0) });
+                await expectEvent(evenTx, "sessionCreated", { sessionID: BN(1) });
                 const evenTx2 = await votingInstance.createnewVoteSession("Session 2", 1, { from: _voter2 });
-                await expectEvent(evenTx2, "sessionCreated", { sessionID: BN(1) });
+                await expectEvent(evenTx2, "sessionCreated", { sessionID: BN(2) });
             });
         })
 
