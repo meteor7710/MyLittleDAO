@@ -111,6 +111,11 @@ contract MyLittleDAO is Ownable {
         @param newMaxVoterperSession The new max voter per session limit.*/ 
     event maxVoterperSessionModification(uint16 oldMaxVoterperSession,uint16 newMaxVoterperSession);
 
+    /** @notice This event is emitted when the variable maxProposalperSession is modified.
+        @param oldMaxProposalperSession The old max proposal per session limit.
+        @param newMaxProposalperSession The new max proposal per session limit.*/ 
+    event maxProposalperSessionModification(uint16 oldMaxProposalperSession,uint16 newMaxProposalperSession);
+
 
     /** @notice This event is emitted when a bad call is received.
         @param sessionID The new session ID.*/ 
@@ -316,6 +321,15 @@ contract MyLittleDAO is Ownable {
         voteProposals.push(newProposal); 
 
         emit ProposalRegistered(currentProposalID+1,_sessionID);
+    }
+
+    /** @notice Set the max proposal per Session .
+        @dev Set state variable maxVoterperSession.
+        @param _max The new max voter number.*/
+    function setMaxProposalperSession (uint16 _max) public  onlyOwner {
+        uint16 oldMaxProposal = maxProposalperSession;
+        maxProposalperSession = _max;
+        emit maxProposalperSessionModification(oldMaxProposal,_max);
     }
 
 
