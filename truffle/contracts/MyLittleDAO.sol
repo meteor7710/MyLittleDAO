@@ -160,6 +160,11 @@ contract MyLittleDAO is Ownable {
         _;
     }
 
+    modifier validateProposal (uint64 _proposalID, uint64 _sessionID){
+        require( _proposalID <= getSessionCurrentProposalID (_sessionID), "Proposal doesn't exist");
+        _;
+    }
+
     modifier validateStatus (uint64 _sessionID, uint8 _status) { 
         require ( voteSessions[_sessionID].workflowStatus == WorkflowStatus(_status),"Session status is not correct");
         _;
@@ -193,7 +198,7 @@ contract MyLittleDAO is Ownable {
         @param _SessionID The session ID to query.
         @return Session The sessions informations*/
 
-    function getProposal (uint16 _ProposalID,uint64 _SessionID) external validateSession(_SessionID) onlyAdminOrVoters(_SessionID) view  returns (Proposal memory) {
+    function getProposal (uint16 _ProposalID,uint64 _SessionID) external validateSession(_SessionID) validateProposal(_ProposalID,_SessionID) onlyAdminOrVoters(_SessionID) view  returns (Proposal memory) {
        return voteProposals[_ProposalID];
     }
 
