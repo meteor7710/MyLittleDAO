@@ -47,9 +47,10 @@ contract MyLittleDAO is Ownable {
 
     struct Session {
         string title;
+        address sessionAdmin;
+        uint16 sessionVoters;
         WorkflowStatus workflowStatus;
         VoteType voteType;
-        address sessionAdmin;
     }
 
     struct Proposal {
@@ -93,6 +94,11 @@ contract MyLittleDAO is Ownable {
         @param oldMaxVoteSession The old max vote session limit.
         @param newMaxVoteSession The new max vote session limit.*/ 
     event maxVoteSessionModification(uint64 oldMaxVoteSession,uint64 newMaxVoteSession);
+
+    /** @notice This event is emitted when the variable maxVoterperSession is modified.
+        @param oldMaxVoterperSession The old max voter per session limit.
+        @param newMaxVoterperSession The new max voter per session limit.*/ 
+    event maxVoterperSessionModification(uint16 oldMaxVoterperSession,uint16 newMaxVoterperSession);
 
 
     /** @notice This event is emitted when a bad call is received.
@@ -219,6 +225,7 @@ contract MyLittleDAO is Ownable {
     function addVoter(address _address, uint64 _sessionID) external validateSession(_sessionID) isSessionAdmin(_sessionID) validateStatus(_sessionID,0) {
         require(!voters[_sessionID][_address].isRegistered, "This voter is already registered !");
         voters[_sessionID][_address].isRegistered = true;
+        voteSessions[_sessionID].sessionVoters = ++voteSessions[_sessionID].sessionVoters;
         emit VoterRegistered(_address,_sessionID);
     }
 
@@ -229,7 +236,17 @@ contract MyLittleDAO is Ownable {
     function removeVoter (address _address,uint64 _sessionID) external validateSession(_sessionID) isSessionAdmin(_sessionID) validateStatus(_sessionID,0)  {
         require(voters[_sessionID][_address].isRegistered, "This voter is not registered !");
         delete voters[_sessionID][_address];
+        voteSessions[_sessionID].sessionVoters = --voteSessions[_sessionID].sessionVoters;
         emit VoterUnregistered (_address,_sessionID);
+    }
+
+    /** @notice Set the max voters per Session .
+        @dev Set state variable maxVoterperSession.
+        @param _max The new max voter number.*/
+    function setMaxVoterperSession (uint16 _max) public  onlyOwner {
+        uint16 oldMaxVoter = maxVoterperSession;
+        maxVoterperSession = _max;
+        emit maxVoterperSessionModification(oldMaxVoter,_max);
     }
 
 
