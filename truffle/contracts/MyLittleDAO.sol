@@ -299,11 +299,13 @@ contract MyLittleDAO is Ownable {
         @param _decription The proposal description.
         @param _sessionID The vote session ID.*/
     function registerProposal (string calldata _decription, uint64 _sessionID) external validateSession(_sessionID) onlyVoters(_sessionID) validateStatus(_sessionID,1) {
-
-        Proposal memory newProposal = Proposal (_decription,0,_sessionID);
-        voteProposals.push(newProposal);
         uint16 currentProposalID = getSessionCurrentProposalID (_sessionID);
-        
+        require((currentProposalID < maxProposalperSession), "Max proposal per session reached");
+        require(keccak256(abi.encode(_decription)) != keccak256(abi.encode("")), "Description can not be empty");
+       
+        Proposal memory newProposal = Proposal (_decription,0,_sessionID);
+        voteProposals.push(newProposal); 
+
         emit ProposalRegistered(currentProposalID+1,_sessionID);
     }
 
