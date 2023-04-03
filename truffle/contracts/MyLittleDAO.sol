@@ -181,6 +181,15 @@ contract MyLittleDAO is Ownable {
        return voteSessions[_id];
     }
 
+    /** @notice Get proposal informations.
+        @dev Retrieve session attributes.
+        @param _ProposalID The session ID to query.
+        @param _SessionID The session ID to query.
+        @return Session The sessions informations*/
+    function getProposal (uint16 _ProposalID,uint64 _SessionID) external validateSession(_SessionID) onlyAdminOrVoters(_SessionID) view  returns (Proposal memory) {
+       return voteProposals[_ProposalID];
+    }
+
 
 
     /************** Vote sessions **************/
