@@ -302,8 +302,6 @@ contract("MyLittleDAO tests", accounts => {
 
     });
 
-    });
-
 
 
     //Getters tests
