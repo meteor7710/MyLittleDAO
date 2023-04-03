@@ -244,12 +244,63 @@ contract("MyLittleDAO tests", accounts => {
                 expect(await session.sessionVoters).to.be.bignumber.equal("0");
             });
         });
+    });
 
+    //Voters tests
+    describe("Proposal tests", () => {
+        beforeEach(async () => {
+            await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
+            await votingInstance.addVoter(_voter2, 1, { from: _voter1 });
+            await votingInstance.addVoter(_voter3, 1, { from: _voter1 });
+            await votingInstance.changeWorkflowStatus( 1, { from: _voter1 });
+        });
+        describe("Proposal creation tests", () => {
+            
+            it("voter can create a proposal", async () => {
+                expect(await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 }));
+                expect(await votingInstance.registerProposal("Proposal 2", 1, { from: _voter3 }));
+            });
+
+            it("non-voter can't create a proposal", async () => {
+                await expectRevert(votingInstance.registerProposal("Proposal 1", 1, { from: _voter1 }), "You're not a voter of this session");
+                await expectRevert(votingInstance.registerProposal("Proposal 1", 1, { from: _nonVoter }), "You're not a voter of this session");
+            });
+
+            it("proposal description can't be empty", async () => {
+                await expectRevert(votingInstance.registerProposal("", 1, { from: _voter2 }), "Description can not be empty");
+            });
+
+            it("proposal attributes are correctly stored", async () => {
+                await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 });
+                await votingInstance.registerProposal("Proposal 2", 1, { from: _voter3 });
+                const prop1 = await votingInstance.getProposal.call(1,1, { from: _voter1 });
+                const prop2 = await votingInstance.getProposal.call(2,1, { from: _voter1 });
+
+                expect(prop1.description).to.equal("Proposal 1");
+                expect(prop1.voteSession).to.be.bignumber.equal("1");
+                expect(prop1.voteCount).to.be.bignumber.equal("0");
+                expect(prop2.description).to.equal("Proposal 2");
+                expect(prop2.voteSession).to.be.bignumber.equal("1");
+                expect(prop2.voteCount).to.be.bignumber.equal("0");
+            });
+
+            it("maxProposalperSession blocks new proposal creation", async () => {
+                await votingInstance.setMaxProposalperSession(1, { from: _owner });
+                expect(await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 }));
+                await expectRevert(votingInstance.registerProposal("Proposal 2", 1, { from: _voter3 }), "Max proposal per session reached");
+            });
+            
+            it("event is correctly emmited when a proposal is created", async () => {
+                const evenTx = await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 });
+                await expectEvent(evenTx, "ProposalRegistered", { proposalId: BN(1), sessionID: BN(1) });
+                const evenTx2 = await votingInstance.registerProposal("Proposal 2", 1, { from: _voter2 });
+                await expectEvent(evenTx2, "ProposalRegistered", { proposalId: BN(2), sessionID: BN(1) });
+            });
+        
+        });
 
 
     });
-
-
 
 
 
