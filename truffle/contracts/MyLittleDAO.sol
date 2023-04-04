@@ -16,12 +16,12 @@ contract MyLittleDAO is Ownable {
     uint16 public maxProposalperSession;
     uint16 public maxVoterperSession;
 
-    Proposal[] voteProposals;
+    //Proposal[] voteProposals;
     uint64 private sessions;
 
     /************** Mappings defnitions **************/
     mapping(uint64 => mapping(address => Voter)) voters;
-    mapping (uint64 => mapping (uint16 => uint)) sessionsProposals;
+    mapping (uint64 => mapping (uint16 => Proposal)) voteProposals;
     mapping (uint64 => Session) voteSessions;
 
     /************** Enumartions definitions **************/
@@ -51,6 +51,7 @@ contract MyLittleDAO is Ownable {
         string title;
         address sessionAdmin;
         uint16 sessionVoters;
+        uint16 sessionProposals;
         WorkflowStatus workflowStatus;
         VoteType voteType;
     }
@@ -58,7 +59,6 @@ contract MyLittleDAO is Ownable {
     struct Proposal {
         string description;
         uint16 voteCount;
-        uint64 voteSession;
     }
 
     /** @notice Initialize default contract values
@@ -67,9 +67,6 @@ contract MyLittleDAO is Ownable {
         maxVoteSession = 10000;
         maxProposalperSession = 100;
         maxVoterperSession = 100;
-
-        Proposal memory genesisProposal = Proposal ("Genesis proposal",0,0);
-        voteProposals.push(genesisProposal);
     }
 
     /// @notice Default function to receive coins
@@ -156,7 +153,7 @@ contract MyLittleDAO is Ownable {
     }
 
     modifier validateProposal (uint64 _proposalID, uint64 _sessionID){
-        require( _proposalID <= getSessionCurrentProposalID (_sessionID), "Proposal doesn't exist");
+        require( _proposalID <= voteSessions[_sessionID].sessionProposals, "Proposal doesn't exist");
         _;
     }
 
@@ -194,10 +191,8 @@ contract MyLittleDAO is Ownable {
         @return Session The sessions informations*/
 
     function getProposal (uint16 _ProposalID,uint64 _SessionID) external validateSession(_SessionID) validateProposal(_ProposalID,_SessionID) onlyAdminOrVoters(_SessionID) view  returns (Proposal memory) {
-       return voteProposals[_ProposalID];
+       return voteProposals[_SessionID][_ProposalID];
     }
-
-
 
     /************** Vote sessions **************/
 
@@ -303,34 +298,20 @@ contract MyLittleDAO is Ownable {
 
     /************** Proposals **************/
 
-    /** @notice Get number of existing proposals for a session.
-        @dev Restricted to internal usage.
-        @param _sessionID The vote session ID.
-        @return nbProposals The number of proposal in the session*/
-
-    function getSessionCurrentProposalID (uint64 _sessionID) internal view returns (uint16 nbProposals) {
-        uint8 i;
-        uint16 currentID;  
-        for (i=0;i< voteProposals.length;i++){
-            if (voteProposals[i].voteSession ==_sessionID) { currentID = ++currentID; }
-        }
-        return currentID;
-    }
-
     /** @notice Register a new  proposal to a vote session.
         @dev Only session voters can add a proposal.
         @param _decription The proposal description.
         @param _sessionID The vote session ID.*/
 
     function registerProposal (string calldata _decription, uint64 _sessionID) external validateSession(_sessionID) onlyVoters(_sessionID) validateStatus(_sessionID,1) {
-        uint16 currentProposalID = getSessionCurrentProposalID (_sessionID);
-        require((currentProposalID < maxProposalperSession), "Max proposal per session reached");
+        require((voteSessions[_sessionID].sessionProposals < maxProposalperSession), "Max proposal per session reached");
         require(keccak256(abi.encode(_decription)) != keccak256(abi.encode("")), "Description can not be empty");
        
-        Proposal memory newProposal = Proposal (_decription,0,_sessionID);
-        voteProposals.push(newProposal); 
+        voteSessions[_sessionID].sessionProposals = ++ voteSessions[_sessionID].sessionProposals;
 
-        emit ProposalRegistered(currentProposalID+1,_sessionID);
+        voteProposals[_sessionID][voteSessions[_sessionID].sessionProposals].description = _decription;
+
+        emit ProposalRegistered(voteSessions[_sessionID].sessionProposals,_sessionID);
     }
 
     /** @notice Set the max proposal per Session .

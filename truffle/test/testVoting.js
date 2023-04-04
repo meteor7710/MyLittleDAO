@@ -278,10 +278,8 @@ contract("MyLittleDAO tests", accounts => {
                 const prop2 = await votingInstance.getProposal.call(2,1, { from: _voter1 });
 
                 expect(prop1.description).to.equal("Proposal 1");
-                expect(prop1.voteSession).to.be.bignumber.equal("1");
                 expect(prop1.voteCount).to.be.bignumber.equal("0");
                 expect(prop2.description).to.equal("Proposal 2");
-                expect(prop2.voteSession).to.be.bignumber.equal("1");
                 expect(prop2.voteCount).to.be.bignumber.equal("0");
             });
 
