@@ -16,13 +16,12 @@ contract MyLittleDAO is Ownable {
     uint16 public maxProposalperSession;
     uint16 public maxVoterperSession;
 
-    //Proposal[] voteProposals;
     uint64 private sessions;
 
     /************** Mappings defnitions **************/
-    mapping(uint64 => mapping(address => Voter)) voters;
-    mapping (uint64 => mapping (uint16 => Proposal)) voteProposals;
-    mapping (uint64 => Session) voteSessions;
+    mapping(uint64 => mapping(address => Voter)) private voters;
+    mapping (uint64 => mapping (uint16 => Proposal)) private voteProposals;
+    mapping (uint64 => Session) private voteSessions;
 
     /************** Enumartions definitions **************/
     enum WorkflowStatus {
@@ -324,6 +323,6 @@ contract MyLittleDAO is Ownable {
         emit maxProposalperSessionModification(oldMaxProposal,_max);
     }
 
-
+     /************** Donations **************/
 
 }
