@@ -16,11 +16,13 @@ contract MyLittleDAO is Ownable {
     uint16 public maxProposalperSession;
     uint16 public maxVoterperSession;
 
-    Session[] voteSessions;
     Proposal[] voteProposals;
+    uint64 private sessions;
 
     /************** Mappings defnitions **************/
     mapping(uint64 => mapping(address => Voter)) voters;
+    mapping (uint64 => mapping (uint16 => uint)) sessionsProposals;
+    mapping (uint64 => Session) voteSessions;
 
     /************** Enumartions definitions **************/
     enum WorkflowStatus {
@@ -66,15 +68,8 @@ contract MyLittleDAO is Ownable {
         maxProposalperSession = 100;
         maxVoterperSession = 100;
 
-        Session memory genesisSession;
-        genesisSession.sessionAdmin = msg.sender;
-        genesisSession.title = "Genesis session";
-        voteSessions.push(genesisSession);
-
         Proposal memory genesisProposal = Proposal ("Genesis proposal",0,0);
         voteProposals.push(genesisProposal);
-
-
     }
 
     /// @notice Default function to receive coins
@@ -156,7 +151,7 @@ contract MyLittleDAO is Ownable {
     }
 
     modifier validateSession (uint64 _sessionID){
-        require( _sessionID < voteSessions.length, "Session doesn't exist");
+        require( _sessionID <= sessions, "Session doesn't exist");
         _;
     }
 
@@ -223,17 +218,16 @@ contract MyLittleDAO is Ownable {
         @param _voteType The new vote type (SimpleVote, PotVote,AdminVote).*/
 
     function createnewVoteSession (string calldata _title, VoteType _voteType ) external   {
-        require(( voteSessions.length-1 < maxVoteSession), "Max vote session reached");
+        require(( sessions < maxVoteSession), "Max vote session reached");
         require(keccak256(abi.encode(_title)) != keccak256(abi.encode("")), "Title can not be empty");
 
-        Session memory newSession;
-        newSession.sessionAdmin = msg.sender;
-        newSession.title = _title;
-        newSession.voteType = _voteType;
+        sessions = ++sessions;
 
-        voteSessions.push(newSession);
-        
-        emit sessionCreated(voteSessions.length-1);
+        voteSessions[sessions].sessionAdmin = msg.sender;
+        voteSessions[sessions].title = _title;
+        voteSessions[sessions].voteType = _voteType;
+               
+        emit sessionCreated(sessions);
     }
 
     /** @notice Change vote session admin.
