@@ -184,7 +184,7 @@ contract MyLittleDAO is Ownable {
     /** @notice Get vote session informations.
         @dev Retrieve session attributes.
         @param _id The session ID to query.
-        @return Session The sessions informations*/
+        @return Session The sessions informations.*/
 
     function getSession (uint64 _id) external validateSession(_id) onlyAdminOrVoters(_id) view  returns (Session memory) {
        return voteSessions[_id];
@@ -194,10 +194,20 @@ contract MyLittleDAO is Ownable {
         @dev Retrieve session attributes.
         @param _ProposalID The session ID to query.
         @param _SessionID The session ID to query.
-        @return Session The sessions informations*/
+        @return Session The sessions informations.*/
 
     function getProposal (uint16 _ProposalID,uint64 _SessionID) external validateSession(_SessionID) validateProposal(_ProposalID,_SessionID) onlyAdminOrVoters(_SessionID) view  returns (Proposal memory) {
        return voteProposals[_SessionID][_ProposalID];
+    }
+
+    /** @notice Get voter donations for a session.
+        @dev only voters or admin can get voter donations.
+        @param _addr The voter address.
+        @param _sessionID The vote session ID.
+        @return voterDonations The sessions informations.*/
+
+    function getVoterDonations (address _addr , uint64 _sessionID) external validateSession(_sessionID) onlyAdminOrVoters(_sessionID) view  returns (uint voterDonations) {
+       return donations[_sessionID][_addr];
     }
 
     /************** Vote sessions **************/
@@ -330,21 +340,24 @@ contract MyLittleDAO is Ownable {
         emit maxProposalperSessionModification(oldMaxProposal,_max);
     }
 
-     /************** Donations **************/
+    /************** Donations **************/
 
-     /** @notice Send donation for a session.
+    /** @notice Send donation for a session.
         @dev only voters can donate.
         @param _sessionID The vote session ID.*/       
 
     function sendDonation ( uint64 _sessionID) external payable validateSession(_sessionID) onlyVoters(_sessionID)   {
         require ( voteSessions[_sessionID].voteType == VoteType.PotVote,"Session doesn't accept donation");
-        require ( voteSessions[_sessionID].workflowStatus <= WorkflowStatus.VotingSessionEnded,"Session status is not correct for donations");
+        require ( voteSessions[_sessionID].workflowStatus < WorkflowStatus.VotingSessionEnded,"Session status is not correct for donations");
         require ( !(msg.value == 0),"Donations must be greater than 0");
 
         donations[_sessionID][msg.sender] = donations[_sessionID][msg.sender] + msg.value;
 
         emit DonationRegistered(msg.value,msg.sender,_sessionID);
-
     }
+
+    
+
+
 
 }
