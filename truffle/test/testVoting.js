@@ -105,26 +105,43 @@ contract("MyLittleDAO tests", accounts => {
         })
 
         describe("Session get information tests", () => {
-            it("admin can get session information", async () => {
+            beforeEach(async () => {
                 await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
+            });
+
+            it("admin can get session information", async () => {
                 expect(await votingInstance.getSession(1, { from: _voter1 }));
             });
 
             it("voter can get session information", async () => {
-                await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
                 await votingInstance.addVoter(_voter2, 1, { from: _voter1 });
                 expect(await votingInstance.getSession(1, { from: _voter2 }));
             });
 
             it("admin and voter can't get information tests of an unexisting session", async () => {
-                await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
                 await expectRevert(votingInstance.getSession(2, { from: _voter1 }), "Session doesn't exist");
                 await expectRevert(votingInstance.getSession(2, { from: _voter2 }), "Session doesn't exist");
             });
 
             it("non-voter can't get session information", async () => {
-                await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
                 await expectRevert(votingInstance.getSession(1, { from: _nonVoter }), "You're not a voter or admin of this session");
+            });
+
+            it("session attributes are correctly returned", async () => {
+                await votingInstance.createnewVoteSession("Session 2", 1, { from: _voter1 });
+                await votingInstance.createnewVoteSession("Session 3", 2, { from: _voter1 });
+                const session1 = await votingInstance.getSession.call(1, { from: _voter1 });
+                const session2 = await votingInstance.getSession.call(2, { from: _voter1 });
+                const session3 = await votingInstance.getSession.call(3, { from: _voter1 });
+                expect(session1.title).to.equal("Session 1");
+                expect(session1.sessionAdmin).to.equal(_voter1);
+                expect(session1.voteType).to.be.bignumber.equal("0");
+                expect(session1.workflowStatus).to.be.bignumber.equal("0");
+                expect(session1.sessionVoters).to.be.bignumber.equal("0");
+                expect(session2.title).to.equal("Session 2");
+                expect(session2.voteType).to.be.bignumber.equal("1");
+                expect(session3.title).to.equal("Session 3");
+                expect(session3.voteType).to.be.bignumber.equal("2");
             });
         })
 
