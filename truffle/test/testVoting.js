@@ -328,6 +328,16 @@ contract("MyLittleDAO tests", accounts => {
                 await expectRevert(votingInstance.getProposal(1, 1, { from: _nonVoter }), "You're not a voter or admin of this session");
                 await expectRevert(votingInstance.getProposal(2, 1, { from: _nonVoter }), "You're not a voter or admin of this session");
             });
+
+            it("proposal information are correctly returned", async () => {
+                const prop1 = await votingInstance.getProposal.call(1, 1, { from: _voter1 });
+                const prop2 = await votingInstance.getProposal.call(2, 1, { from: _voter1 });
+
+                expect(prop1.description).to.equal("Proposal 1");
+                expect(prop1.voteCount).to.be.bignumber.equal("0");
+                expect(prop2.description).to.equal("Proposal 2");
+                expect(prop2.voteCount).to.be.bignumber.equal("0");
+            });
         });
     });
 
