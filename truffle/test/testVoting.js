@@ -8,6 +8,7 @@ contract("MyLittleDAO tests", accounts => {
     const _voter1 = accounts[1];
     const _voter2 = accounts[2];
     const _voter3 = accounts[3];
+    const _voter4 = accounts[4];
     const _nonVoter = accounts[9];
 
     let votingInstance;
@@ -106,24 +107,24 @@ contract("MyLittleDAO tests", accounts => {
         describe("Session get information tests", () => {
             it("admin can get session information", async () => {
                 await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
-                expect(await votingInstance.getSession( 1, { from: _voter1 }));
+                expect(await votingInstance.getSession(1, { from: _voter1 }));
             });
 
             it("voter can get session information", async () => {
                 await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
                 await votingInstance.addVoter(_voter2, 1, { from: _voter1 });
-                expect(await votingInstance.getSession( 1, { from: _voter2 }));
+                expect(await votingInstance.getSession(1, { from: _voter2 }));
             });
 
             it("admin and voter can't get information tests of an unexisting session", async () => {
                 await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
-                await expectRevert(votingInstance.getSession( 2, { from: _voter1 }), "Session doesn't exist");
-                await expectRevert(votingInstance.getSession( 2, { from: _voter2 }), "Session doesn't exist");
+                await expectRevert(votingInstance.getSession(2, { from: _voter1 }), "Session doesn't exist");
+                await expectRevert(votingInstance.getSession(2, { from: _voter2 }), "Session doesn't exist");
             });
 
-            it("non-voter can't get session information", async () => {                
+            it("non-voter can't get session information", async () => {
                 await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
-                await expectRevert(votingInstance.getSession( 1, { from: _nonVoter }), "You're not a voter or admin of this session");
+                await expectRevert(votingInstance.getSession(1, { from: _nonVoter }), "You're not a voter or admin of this session");
             });
         })
 
@@ -157,7 +158,7 @@ contract("MyLittleDAO tests", accounts => {
                 const evenTx = await votingInstance.transferSessionAdmin(_voter2, 1, { from: _voter1 })
                 await expectEvent(evenTx, "sessionAdminTransferred", { sessionID: BN(1), oldAdmin: _voter1, newAdmin: _voter2 });
             });
-        }) 
+        })
     });
 
     //Voters tests
@@ -166,7 +167,7 @@ contract("MyLittleDAO tests", accounts => {
             await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
         });
         describe("Add voter tests", () => {
-            
+
             it("admin can add voters", async () => {
                 expect(await votingInstance.addVoter(_voter2, 1, { from: _voter1 }));
             });
@@ -180,7 +181,7 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("admin can't add voters when status is not RegisteringVoters", async () => {
-                await votingInstance.changeWorkflowStatus( 1, { from: _voter1 });
+                await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
                 await expectRevert(votingInstance.addVoter(_voter2, 1, { from: _voter1 }), "Session status is not correct");
             });
 
@@ -210,7 +211,7 @@ contract("MyLittleDAO tests", accounts => {
             beforeEach(async () => {
                 await votingInstance.addVoter(_voter2, 1, { from: _voter1 });
             });
-            
+
             it("admin can remove voters", async () => {
                 expect(await votingInstance.removeVoter(_voter2, 1, { from: _voter1 }));
             });
@@ -224,7 +225,7 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("admin can't remove voters when status is not RegisteringVoters", async () => {
-                await votingInstance.changeWorkflowStatus( 1, { from: _voter1 });
+                await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
                 await expectRevert(votingInstance.removeVoter(_voter2, 1, { from: _voter1 }), "Session status is not correct");
             });
 
@@ -245,18 +246,18 @@ contract("MyLittleDAO tests", accounts => {
             });
         });
     });
-    
+
     //Voters tests
     describe("Proposal tests", () => {
         beforeEach(async () => {
             await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
             await votingInstance.addVoter(_voter2, 1, { from: _voter1 });
             await votingInstance.addVoter(_voter3, 1, { from: _voter1 });
-            await votingInstance.changeWorkflowStatus( 1, { from: _voter1 });
+            await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
         });
 
         describe("Proposal creation tests", () => {
-            
+
             it("voter can create a proposal", async () => {
                 expect(await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 }));
                 expect(await votingInstance.registerProposal("Proposal 2", 1, { from: _voter3 }));
@@ -274,8 +275,8 @@ contract("MyLittleDAO tests", accounts => {
             it("proposal attributes are correctly stored", async () => {
                 await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 });
                 await votingInstance.registerProposal("Proposal 2", 1, { from: _voter3 });
-                const prop1 = await votingInstance.getProposal.call(1,1, { from: _voter1 });
-                const prop2 = await votingInstance.getProposal.call(2,1, { from: _voter1 });
+                const prop1 = await votingInstance.getProposal.call(1, 1, { from: _voter1 });
+                const prop2 = await votingInstance.getProposal.call(2, 1, { from: _voter1 });
 
                 expect(prop1.description).to.equal("Proposal 1");
                 expect(prop1.voteCount).to.be.bignumber.equal("0");
@@ -288,7 +289,7 @@ contract("MyLittleDAO tests", accounts => {
                 expect(await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 }));
                 await expectRevert(votingInstance.registerProposal("Proposal 2", 1, { from: _voter3 }), "Max proposal per session reached");
             });
-            
+
             it("event is correctly emmited when a proposal is created", async () => {
                 const evenTx = await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 });
                 await expectEvent(evenTx, "ProposalRegistered", { proposalId: BN(1), sessionID: BN(1) });
@@ -304,30 +305,153 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("admin can get proposal information", async () => {
-                expect(await votingInstance.getProposal( 1,1, { from: _voter1 }));
-                expect(await votingInstance.getProposal( 2,1, { from: _voter1 }));
+                expect(await votingInstance.getProposal(1, 1, { from: _voter1 }));
+                expect(await votingInstance.getProposal(2, 1, { from: _voter1 }));
             });
 
             it("voter can get proposal information", async () => {
-                expect(await votingInstance.getProposal( 1,1, { from: _voter3 }));
-                expect(await votingInstance.getProposal( 2,1, { from: _voter2 }));
+                expect(await votingInstance.getProposal(1, 1, { from: _voter3 }));
+                expect(await votingInstance.getProposal(2, 1, { from: _voter2 }));
             });
 
-            it("admin and voter can't get information tests of an unexisting proposal", async () => {
-                /*await votingInstance.createnewVoteSession("Session 1", 0, { from: _voter1 });
-                await expectRevert(votingInstance.getSession( 2, { from: _voter1 }), "Session doesn't exist");
-                await expectRevert(votingInstance.getSession( 2, { from: _voter2 }), "Session doesn't exist");*/
+            it("admin and voter can't get proposal information of an unexisting session", async () => {
+                await expectRevert(votingInstance.getProposal(1, 11, { from: _voter1 }), "Session doesn't exist");
+                await expectRevert(votingInstance.getProposal(1, 11, { from: _voter2 }), "Session doesn't exist");
             });
 
-            it("non-voter can't get proposal information", async () => {                
-                await expectRevert(votingInstance.getProposal( 1,1, { from: _nonVoter }), "You're not a voter or admin of this session");
-                await expectRevert(votingInstance.getProposal( 2,1, { from: _nonVoter }), "You're not a voter or admin of this session");
+            it("admin and voter can't get proposal information of an unexisting proposal", async () => {
+                await expectRevert(votingInstance.getProposal(10, 1, { from: _voter1 }), "Proposal doesn't exist");
+                await expectRevert(votingInstance.getProposal(10, 1, { from: _voter2 }), "Proposal doesn't exist");
             });
 
+            it("non-voter can't get proposal information", async () => {
+                await expectRevert(votingInstance.getProposal(1, 1, { from: _nonVoter }), "You're not a voter or admin of this session");
+                await expectRevert(votingInstance.getProposal(2, 1, { from: _nonVoter }), "You're not a voter or admin of this session");
+            });
+        });
+    });
+
+    //Donations tests
+    describe("Donations tests", () => {
+        beforeEach(async () => {
+            await votingInstance.createnewVoteSession("Session 1", 1, { from: _voter1 });
+            await votingInstance.addVoter(_voter2, 1, { from: _voter1 });
+            await votingInstance.addVoter(_voter3, 1, { from: _voter1 });
+            await votingInstance.addVoter(_voter4, 1, { from: _voter1 });
         });
 
+        describe("Donations creation tests", () => {
 
+            it("donation can't be done to an unexisting session", async () => {
+                await expectRevert(votingInstance.sendDonation(10, { from: _voter2, value: 1000000000000000000 }), "Session doesn't exist");
+            });
+
+            it("voter can donate", async () => {
+                expect(await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 }));
+                expect(await votingInstance.sendDonation(1, { from: _voter3, value: 1000000000000000000 }));
+            });
+
+            it("non-voter can't donate", async () => {
+                await expectRevert(votingInstance.sendDonation(1, { from: _nonVoter, value: 1000000000000000000 }), "You're not a voter of this session");
+            });
+
+            it("only PotVote session accept donation", async () => {
+                await votingInstance.createnewVoteSession("Session 2", 0, { from: _voter1 });
+                await votingInstance.addVoter(_voter2, 2, { from: _voter1 });
+                await votingInstance.createnewVoteSession("Session 3", 2, { from: _voter1 });
+                await votingInstance.addVoter(_voter2, 3, { from: _voter1 });
+                await expectRevert(votingInstance.sendDonation(2, { from: _voter2, value: 1000000000000000000 }), "Session doesn't accept donation");
+                await expectRevert(votingInstance.sendDonation(3, { from: _voter2, value: 1000000000000000000 }), "Session doesn't accept donation");
+            });
+
+            it("validate session status that accepts donations", async () => {
+                await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
+                expect(await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 }));
+                await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
+                expect(await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 }));
+                await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
+                expect(await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 }));
+            });
+
+            it("validate session status that doesn't accept donations", async () => {
+                await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
+                await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
+                await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
+                await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
+                await expectRevert(votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 }), "Session status is not correct for donations");
+                await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
+                await expectRevert(votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 }), "Session status is not correct for donations");
+            });
+
+            it("donation must not be 0", async () => {
+                await expectRevert(votingInstance.sendDonation(1, { from: _voter2, value: 0 }), "Donations must be greater than 0");
+            });
+
+            it("donation is credited on smartcontract", async () => {
+                expect(await web3.eth.getBalance(votingInstance.address) == 0);
+                expect(await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 }));
+                expect(await web3.eth.getBalance(votingInstance.address) == 1000000000000000000);
+            });
+
+            it("donation is credited on mapping", async () => {
+                expect(await votingInstance.getVoterDonations(_voter2, 1, { from: _voter2 }) == 0);
+                await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 });
+                expect(await votingInstance.getVoterDonations(_voter2, 1, { from: _voter2 }) == 1000000000000000000);
+            });
+
+            it("voter can donate several time", async () => {
+                expect(await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 }));
+                expect(await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 }));
+            });
+
+            it("donations are cumulated on mapping", async () => {
+                await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 });;
+                await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 });
+                expect(await votingInstance.getVoterDonations(_voter2, 1, { from: _voter2 }) == 2000000000000000000);
+            });
+
+            it("event is correctly emmited when a donation is done", async () => {
+                const evenTx = await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 });
+                await expectEvent(evenTx, "DonationRegistered", { amount: BN("1000000000000000000"), addr: _voter2, sessionID: BN(1) });
+                const evenTx2 = await votingInstance.sendDonation(1, { from: _voter3, value: 2000000000000000000 });
+                await expectEvent(evenTx2, "DonationRegistered", { amount: BN("2000000000000000000"), addr: _voter3, sessionID: BN(1) });
+            });
+        });
+
+        describe("Donations get information tests", () => {
+            beforeEach(async () => {
+                await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 });
+                await votingInstance.sendDonation(1, { from: _voter3, value: 1000000000000000000 });
+            });
+
+            it("admin can get donations information", async () => {
+                expect(await votingInstance.getVoterDonations(_voter2, 1, { from: _voter1 }));
+                expect(await votingInstance.getVoterDonations(_voter3, 1, { from: _voter1 }));
+            });
+
+            it("voter can get donations information", async () => {
+                expect(await votingInstance.getVoterDonations(_voter2, 1, { from: _voter2 }));
+                expect(await votingInstance.getVoterDonations(_voter3, 1, { from: _voter2 }));
+            });
+
+            it("admin and voter can't get donations information of an unexisting session", async () => {
+                await expectRevert(votingInstance.getVoterDonations(_voter2, 11, { from: _voter1 }), "Session doesn't exist");
+                await expectRevert(votingInstance.getVoterDonations(_voter2, 11, { from: _voter2 }), "Session doesn't exist");
+            });
+
+            it("non-voter can't get donations information", async () => {
+                await expectRevert(votingInstance.getVoterDonations(_voter2, 1, { from: _nonVoter }), "You're not a voter or admin of this session");
+                await expectRevert(votingInstance.getVoterDonations(_voter3, 1, { from: _nonVoter }), "You're not a voter or admin of this session");
+            });
+
+            it("donations are correctly returned", async () => {
+                expect(await votingInstance.getVoterDonations(_voter2, 1, { from: _voter2 }) == 1000000000000000000);
+                expect(await votingInstance.getVoterDonations(_voter3, 1, { from: _voter2 }) == 1000000000000000000);
+                expect(await votingInstance.getVoterDonations(_voter4, 1, { from: _voter2 }) == 0);
+            });
+        });
     });
+
 
 
 
