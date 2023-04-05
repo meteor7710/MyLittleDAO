@@ -365,6 +365,7 @@ contract("MyLittleDAO tests", accounts => {
             await votingInstance.addVoter(_voter2, 1, { from: _voter1 });
             await votingInstance.addVoter(_voter3, 1, { from: _voter1 });
             await votingInstance.addVoter(_voter4, 1, { from: _voter1 });
+            await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
         });
 
         describe("Donations creation tests", () => {
@@ -385,14 +386,15 @@ contract("MyLittleDAO tests", accounts => {
             it("only PotVote session accept donation", async () => {
                 await votingInstance.createnewVoteSession("Session 2", 0, { from: _voter1 });
                 await votingInstance.addVoter(_voter2, 2, { from: _voter1 });
+                await votingInstance.changeWorkflowStatus(2, { from: _voter1 });
                 await votingInstance.createnewVoteSession("Session 3", 2, { from: _voter1 });
                 await votingInstance.addVoter(_voter2, 3, { from: _voter1 });
+                await votingInstance.changeWorkflowStatus(3, { from: _voter1 });
                 await expectRevert(votingInstance.sendDonation(2, { from: _voter2, value: 1000000000000000000 }), "Session doesn't accept donation");
                 await expectRevert(votingInstance.sendDonation(3, { from: _voter2, value: 1000000000000000000 }), "Session doesn't accept donation");
             });
 
             it("validate session status that accepts donations", async () => {
-                await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
                 expect(await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 }));
                 await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
                 expect(await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 }));
@@ -401,7 +403,6 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("validate session status that doesn't accept donations", async () => {
-                await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
                 await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
                 await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
                 await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
@@ -438,7 +439,6 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("voters can't donate after voting", async () => {
-                await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
                 await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 })
                 await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
                 await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
