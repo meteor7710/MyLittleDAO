@@ -437,6 +437,16 @@ contract("MyLittleDAO tests", accounts => {
                 expect(await votingInstance.getVoterDonations(_voter2, 1, { from: _voter2 }) == 2000000000000000000);
             });
 
+            it("voters can't donate after voting", async () => {
+                await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
+                await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 })
+                await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
+                await votingInstance.changeWorkflowStatus(1, { from: _voter1 });
+                await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 });
+                await votingInstance.submitVote(1,1, { from: _voter2 });
+                await expectRevert(votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 }), "You have already voted");
+            });
+
             it("event is correctly emmited when a donation is done", async () => {
                 const evenTx = await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 });
                 await expectEvent(evenTx, "DonationRegistered", { amount: BN("1000000000000000000"), addr: _voter2, sessionID: BN(1) });
