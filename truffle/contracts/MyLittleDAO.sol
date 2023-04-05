@@ -19,9 +19,10 @@ contract MyLittleDAO is Ownable {
     uint64 private sessions;
 
     /************** Mappings defnitions **************/
-    mapping(uint64 => mapping(address => Voter)) private voters;
-    mapping (uint64 => mapping (uint16 => Proposal)) private voteProposals;
+    mapping (uint64 => mapping(address => Voter)) private voters;
+    mapping (uint64 => mapping(uint16 => Proposal)) private voteProposals;
     mapping (uint64 => Session) private voteSessions;
+    mapping (uint64 => mapping(address => uint)) private donations;
 
     /************** Enumartions definitions **************/
     enum WorkflowStatus {
@@ -138,6 +139,12 @@ contract MyLittleDAO is Ownable {
         @param proposalId The registered proposal ID.
         @param sessionID The session ID.*/
     event ProposalRegistered(uint16 proposalId,uint64 sessionID);
+
+    /** @notice This event is emitted when a donation is done.
+        @param amount The donation amount.
+        @param addr The donator address.
+        @param sessionID The session ID.*/
+    event DonationRegistered(uint amount, address addr,uint64 sessionID);
 
     /************** Modifier definitions **************/
 
@@ -324,5 +331,19 @@ contract MyLittleDAO is Ownable {
     }
 
      /************** Donations **************/
+
+     /** @notice Send donation for a session.
+        @dev only voters can donate.
+        @param _sessionID The vote session ID.*/       
+
+    function sendDonation ( uint64 _sessionID) external payable validateSession(_sessionID) onlyVoters(_sessionID)   {
+        require ( voteSessions[_sessionID].workflowStatus <= WorkflowStatus.VotingSessionEnded,"Session status is not correct for donations");
+        require ( !(msg.value == 0),"Donations must be greater than 0");
+
+        donations[_sessionID][msg.sender] = donations[_sessionID][msg.sender] + msg.value;
+
+        emit DonationRegistered(msg.value,msg.sender,_sessionID);
+
+    }
 
 }
