@@ -23,6 +23,7 @@ contract MyLittleDAO is Ownable {
     mapping (uint64 => mapping(uint16 => Proposal)) private voteProposals;
     mapping (uint64 => Session) private voteSessions;
     mapping (uint64 => mapping(address => uint)) private donations;
+    mapping (uint64 => uint16) private winningProposals;
 
     /************** Enumartions definitions **************/
     enum WorkflowStatus {
@@ -58,7 +59,7 @@ contract MyLittleDAO is Ownable {
 
     struct Proposal {
         string description;
-        uint16 voteCount;
+        uint voteCount;
     }
 
     /** @notice Initialize default contract values
@@ -146,6 +147,12 @@ contract MyLittleDAO is Ownable {
         @param sessionID The session ID.*/
     event DonationRegistered(uint amount, address addr,uint64 sessionID);
 
+    /** @notice This event is emitted when a vote is submitted.
+        @param proposalID The proposalID voted.
+        @param voter The voter address.
+        @param sessionID The session ID.*/
+    event VoteSubmitted(uint16 proposalID, address voter,uint64 sessionID);
+
     /************** Modifier definitions **************/
 
     modifier isSessionAdmin(uint64 _sessionID){  
@@ -178,6 +185,11 @@ contract MyLittleDAO is Ownable {
         _;
     }
 
+    modifier hasntVoted(uint64 _sessionID) {
+        require(!voters[_sessionID][msg.sender].hasVoted , "You have already voted");
+        _;
+    }
+
 
     /************** Getters **************/
 
@@ -206,7 +218,7 @@ contract MyLittleDAO is Ownable {
         @param _sessionID The vote session ID.
         @return voterDonations The sessions informations.*/
 
-    function getVoterDonations (address _addr , uint64 _sessionID) external validateSession(_sessionID) onlyAdminOrVoters(_sessionID) view  returns (uint voterDonations) {
+    function getVoterDonations (address _addr , uint64 _sessionID) public validateSession(_sessionID) onlyAdminOrVoters(_sessionID) view  returns (uint voterDonations) {
        return donations[_sessionID][_addr];
     }
 
@@ -346,14 +358,48 @@ contract MyLittleDAO is Ownable {
         @dev only voters can donate.
         @param _sessionID The vote session ID.*/       
 
-    function sendDonation ( uint64 _sessionID) external payable validateSession(_sessionID) onlyVoters(_sessionID)   {
+    function sendDonation ( uint64 _sessionID) external payable validateSession(_sessionID) onlyVoters(_sessionID) hasntVoted(_sessionID)   {
         require ( voteSessions[_sessionID].voteType == VoteType.PotVote,"Session doesn't accept donation");
-        require ( voteSessions[_sessionID].workflowStatus < WorkflowStatus.VotingSessionEnded,"Session status is not correct for donations");
+        require ( voteSessions[_sessionID].workflowStatus > WorkflowStatus.RegisteringVoters && voteSessions[_sessionID].workflowStatus < WorkflowStatus.VotingSessionEnded,"Session status is not correct for donations");
         require ( !(msg.value == 0),"Donations must be greater than 0");
 
         donations[_sessionID][msg.sender] = donations[_sessionID][msg.sender] + msg.value;
 
         emit DonationRegistered(msg.value,msg.sender,_sessionID);
+    }
+
+    /************** Votes **************/
+
+    /** @notice Send donation for a session.
+        @dev Only voters can submit a vote.
+        @dev Status must be VotingSessionStarted.
+        @param _proposalID The voted proposal ID.
+        @param _sessionID The vote session ID.*/       
+
+    function submitVote (uint16 _proposalID,  uint64 _sessionID) external  validateSession(_sessionID) onlyVoters(_sessionID) validateStatus(_sessionID,3) hasntVoted(_sessionID) validateProposal(_proposalID,_sessionID)    {
+
+        uint votePower;
+        
+        if ( voteSessions[_sessionID].voteType == VoteType.PotVote)
+        {
+            votePower = getVoterDonations(msg.sender,_sessionID);
+            require ( !(votePower == 0),"You must have donate to vote");
+        }
+        else{
+            votePower = 1;
+        }
+
+        voters[_sessionID][msg.sender].hasVoted = true;
+        voters[_sessionID][msg.sender].votedProposalId = _proposalID;
+
+        voteProposals[_sessionID][_proposalID].voteCount = voteProposals[_sessionID][_proposalID].voteCount + votePower;
+
+        if (winningProposals[_sessionID]==0 || voteProposals[_sessionID][_proposalID].voteCount > voteProposals[_sessionID][winningProposals[_sessionID]].voteCount )
+        {
+            winningProposals[_sessionID]= _proposalID;
+        }
+
+         emit VoteSubmitted(_proposalID,msg.sender,_sessionID);
     }
 
 }
