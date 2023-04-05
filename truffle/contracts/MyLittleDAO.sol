@@ -192,12 +192,12 @@ contract MyLittleDAO is Ownable {
 
     /** @notice Get proposal informations.
         @dev Retrieve session attributes.
-        @param _ProposalID The session ID to query.
-        @param _SessionID The session ID to query.
+        @param _proposalID The session ID to query.
+        @param _sessionID The session ID to query.
         @return Session The sessions informations.*/
 
-    function getProposal (uint16 _ProposalID,uint64 _SessionID) external validateSession(_SessionID) validateProposal(_ProposalID,_SessionID) onlyAdminOrVoters(_SessionID) view  returns (Proposal memory) {
-       return voteProposals[_SessionID][_ProposalID];
+    function getProposal (uint16 _proposalID,uint64 _sessionID) external validateSession(_sessionID) validateProposal(_proposalID,_sessionID) onlyAdminOrVoters(_sessionID) view  returns (Proposal memory) {
+       return voteProposals[_sessionID][_proposalID];
     }
 
     /** @notice Get voter donations for a session.
@@ -355,9 +355,5 @@ contract MyLittleDAO is Ownable {
 
         emit DonationRegistered(msg.value,msg.sender,_sessionID);
     }
-
-    
-
-
 
 }
