@@ -109,7 +109,6 @@ contract MyLittleDAO is Ownable {
         @param newMaxProposalperSession The new max proposal per session limit.*/ 
     event maxProposalperSessionModification(uint16 oldMaxProposalperSession,uint16 newMaxProposalperSession);
 
-
     /** @notice This event is emitted when a bad call is received.
         @param sessionID The new session ID.*/ 
     event sessionCreated(uint sessionID);
