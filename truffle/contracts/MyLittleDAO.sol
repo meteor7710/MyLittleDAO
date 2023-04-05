@@ -337,6 +337,7 @@ contract MyLittleDAO is Ownable {
         @param _sessionID The vote session ID.*/       
 
     function sendDonation ( uint64 _sessionID) external payable validateSession(_sessionID) onlyVoters(_sessionID)   {
+        require ( voteSessions[_sessionID].voteType == VoteType.PotVote,"Session doesn't accept donation");
         require ( voteSessions[_sessionID].workflowStatus <= WorkflowStatus.VotingSessionEnded,"Session status is not correct for donations");
         require ( !(msg.value == 0),"Donations must be greater than 0");
 
