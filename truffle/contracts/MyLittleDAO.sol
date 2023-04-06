@@ -283,8 +283,10 @@ contract MyLittleDAO is Ownable {
         voteSessions[sessions].sessionAdmin = msg.sender;
         voteSessions[sessions].title = _title;
         voteSessions[sessions].voteType = _voteType;
-
-        voteWithdrawals[sessions].withdrawer = msg.sender;
+        if (_voteType == VoteType.PotVote)
+        {
+            voteWithdrawals[sessions].withdrawer = msg.sender;
+        }
                
         emit sessionCreated(sessions);
     }
