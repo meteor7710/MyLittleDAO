@@ -492,6 +492,7 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("validate session status that accepts donations", async () => {
+                await votingInstance.registerProposal("Proposal 1", 1,0,0, { from: _voter2 });
                 expect(await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 }));
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
                 expect(await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 }));
@@ -500,6 +501,7 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("validate session status that doesn't accept donations", async () => {
+                await votingInstance.registerProposal("Proposal 1", 1,0,0, { from: _voter2 });
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
