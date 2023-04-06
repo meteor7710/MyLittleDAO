@@ -266,14 +266,14 @@ contract("MyLittleDAO tests", accounts => {
 
     //Proposal tests
     describe("Proposal tests", () => {
-        beforeEach(async () => {
-            await votingInstance.createnewVoteSession("Session 1", 0, { from: _sessionAdmin });
-            await votingInstance.addVoter(_voter2, 1, { from: _sessionAdmin });
-            await votingInstance.addVoter(_voter3, 1, { from: _sessionAdmin });
-            await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
-        });
-
+        
         describe("Proposal creation tests", () => {
+            beforeEach(async () => {
+                await votingInstance.createnewVoteSession("Session 1", 0, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter2, 1, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter3, 1, { from: _sessionAdmin });
+                await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+            });
 
             it("voter can create a proposal", async () => {
                 expect(await votingInstance.registerProposal("Proposal 1", 1,0,0, { from: _voter2 }));
@@ -337,6 +337,10 @@ contract("MyLittleDAO tests", accounts => {
 
         describe("Proposal get information tests", () => {
             beforeEach(async () => {
+                await votingInstance.createnewVoteSession("Session 1", 0, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter2, 1, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter3, 1, { from: _sessionAdmin });
+                await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
                 await votingInstance.registerProposal("Proposal 1", 1,0,0, { from: _voter2 });
                 await votingInstance.registerProposal("Proposal 2", 1,0,0, { from: _voter3 });
             });
@@ -374,6 +378,54 @@ contract("MyLittleDAO tests", accounts => {
                 expect(prop1.voteCount).to.be.bignumber.equal("0");
                 expect(prop2.description).to.equal("Proposal 2");
                 expect(prop2.voteCount).to.be.bignumber.equal("0");
+            });
+        });
+
+        describe("Admin proposal get information tests", () => {
+            beforeEach(async () => {
+                await votingInstance.createnewVoteSession("Session 1", 2, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter2, 1, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter3, 1, { from: _sessionAdmin });
+                await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+                await votingInstance.registerProposal("Proposal 1", 1,1,200, { from: _voter2 });
+                await votingInstance.registerProposal("Proposal 2", 1,2,400, { from: _voter3 });;
+            });
+
+            it("admin can get admin proposal information", async () => {
+                expect(await votingInstance.getAdminProposal.call(1, 1, { from: _sessionAdmin }));
+                expect(await votingInstance.getAdminProposal.call(2, 1, { from: _sessionAdmin }));
+            });
+
+            it("voter can get admin proposal information", async () => {
+                expect(await votingInstance.getAdminProposal.call(1, 1, { from: _voter3 }));
+                expect(await votingInstance.getAdminProposal.call(2, 1, { from: _voter2 }));
+            });
+
+            it("admin and voter can't get admin proposal information of an unexisting session", async () => {
+                await expectRevert(votingInstance.getAdminProposal.call(1, 11, { from: _sessionAdmin }), "Session doesn't exist");
+                await expectRevert(votingInstance.getAdminProposal.call(1, 11, { from: _voter2 }), "Session doesn't exist");
+            });
+
+            it("admin and voter can't get admin proposal information of an unexisting proposal", async () => {
+                await expectRevert(votingInstance.getAdminProposal.call(10, 1, { from: _sessionAdmin }), "Proposal doesn't exist");
+                await expectRevert(votingInstance.getAdminProposal.call(10, 1, { from: _voter2 }), "Proposal doesn't exist");
+            });
+
+            it("non-voter can't get admin proposal information", async () => {
+                await expectRevert(votingInstance.getAdminProposal.call(1, 1, { from: _nonVoter }), "You're not voter/admin");
+                await expectRevert(votingInstance.getAdminProposal.call(2, 1, { from: _nonVoter }), "You're not voter/admin");
+            });
+
+            it("admin proposal information are correctly returned", async () => {
+                const prop1 = await votingInstance.getAdminProposal.call(1, 1, { from: _sessionAdmin });
+                const prop2 = await votingInstance.getAdminProposal.call(2, 1, { from: _sessionAdmin });
+
+                expect(prop1.setting).to.be.bignumber.equal("1");
+                expect(prop1.value).to.be.bignumber.equal("200");
+                expect(prop1.applied).to.be.false;
+                expect(prop2.setting).to.be.bignumber.equal("2");
+                expect(prop2.value).to.be.bignumber.equal("400");
+                expect(prop2.applied).to.be.false;
             });
         });
     });
