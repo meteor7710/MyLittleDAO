@@ -211,6 +211,15 @@ contract MyLittleDAO is Ownable {
        return voteProposals[_sessionID][_proposalID];
     }
 
+    /** @notice Get winning proposal of a session.
+        @dev Retrieve the winning proposalID.
+        @param _sessionID The session ID to query.
+        @return winningProposalID The winning proposalID.*/
+
+    function getWinningProposal (uint64 _sessionID) external validateSession(_sessionID) onlyAdminOrVoters(_sessionID) view  returns (uint16 winningProposalID) {
+       return winningProposals[_sessionID];
+    }
+
     /** @notice Get voter donations for a session.
         @dev only voters or admin can get voter donations.
         @param _addr The voter address.
@@ -220,6 +229,7 @@ contract MyLittleDAO is Ownable {
     function getVoterDonations (address _addr , uint64 _sessionID) public validateSession(_sessionID) onlyAdminOrVoters(_sessionID) view  returns (uint voterDonations) {
        return donations[_sessionID][_addr];
     }
+
 
     /************** Vote sessions **************/
 
@@ -384,9 +394,7 @@ contract MyLittleDAO is Ownable {
             votePower = getVoterDonations(msg.sender,_sessionID);
             require ( !(votePower == 0),"You must have donate to vote");
         }
-        else{
-            votePower = 1;
-        }
+        else{ votePower = 1; }
 
         voters[_sessionID][msg.sender].hasVoted = true;
         voters[_sessionID][msg.sender].votedProposalId = _proposalID;
@@ -398,7 +406,7 @@ contract MyLittleDAO is Ownable {
             winningProposals[_sessionID]= _proposalID;
         }
 
-         emit VoteSubmitted(_proposalID,msg.sender,_sessionID);
+        emit VoteSubmitted(_proposalID,msg.sender,_sessionID);
     }
 
 }
