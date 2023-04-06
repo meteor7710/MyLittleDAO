@@ -504,10 +504,12 @@ contract("MyLittleDAO tests", accounts => {
                 await votingInstance.registerProposal("Proposal 1", 1,0,0, { from: _voter2 });
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+                await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 })
+                await votingInstance.submitVote(1,1, { from: _voter2});
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
-                await expectRevert(votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 }), "Session status is not correct for donations");
+                await expectRevert(votingInstance.sendDonation(1, { from: _voter3, value: 1000000000000000000 }), "Session status is not correct for donations");
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
-                await expectRevert(votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 }), "Session status is not correct for donations");
+                await expectRevert(votingInstance.sendDonation(1, { from: _voter3, value: 1000000000000000000 }), "Session status is not correct for donations");
             });
 
             it("donation must not be 0", async () => {
@@ -900,6 +902,7 @@ contract("MyLittleDAO tests", accounts => {
                 await votingInstance.registerProposal("Proposal 1",2,0,0, { from: _voter2 })
                 await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
                 await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+                await votingInstance.submitVote(1,2, { from: _voter2});
                 await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
                 await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
                 await expectRevert(votingInstance.sessionWithdraw(2, { from: _sessionAdmin }),"You are not in a withdrawable session");
