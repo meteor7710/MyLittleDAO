@@ -43,7 +43,7 @@ contract("MyLittleDAO tests", accounts => {
         });
 
         it("non-owner can't change change maxVoteSession", async () => {
-            await expectRevert(votingInstance.setMaxVoteSession(100, { from: _sessionAdmin }), 'Ownable: caller is not the owner');
+            await expectRevert(votingInstance.setMaxVoteSession(100, { from: _sessionAdmin }), "Ownable: caller is not the owner");
         });
 
         it("event is correctly emmited when maxVoteSession is modified", async () => {
@@ -830,11 +830,12 @@ contract("MyLittleDAO tests", accounts => {
                 await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 });
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+                await votingInstance.submitVote(1,1, { from: _voter2});
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
             });
 
-            it("vote submission can't be done to an unexisting session", async () => {
+            it("withdraw can't be done to an unexisting session", async () => {
                 await expectRevert(votingInstance.sessionWithdraw(11, { from: _sessionAdmin }), "Session doesn't exist");
             });
 
@@ -902,6 +903,92 @@ contract("MyLittleDAO tests", accounts => {
                 const evenTx =  await votingInstance.sessionWithdraw(1, { from: _sessionAdmin });
                 await expectEvent(evenTx, "WithdrawalSubmitted", { amount: BN("1000000000000000000"), withdrawer: _sessionAdmin, sessionID: BN(1) });
             });
+        });
+    });
+
+    //Apply admin vote tests
+    describe("Apply admin vote tests", () => {
+
+        beforeEach(async () => {
+            await votingInstance.createnewVoteSession("Session 1", 2, { from: _sessionAdmin });
+            await votingInstance.addVoter(_voter2, 1, { from: _sessionAdmin });
+            await votingInstance.addVoter(_owner, 1, { from: _sessionAdmin });
+            await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+            await votingInstance.registerProposal("Proposal 1", 1,1,400, { from: _voter2 })
+            await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+            await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+            await votingInstance.submitVote(1,1, { from: _voter2});
+            await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+            await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+        });
+
+        it("apply vote can't be done to an unexisting session", async () => {
+            await expectRevert(votingInstance.applyVote(11, { from: _sessionAdmin }), "Session doesn't exist");
+        });
+
+        it("owner can apply vote", async () => {
+            expect(await votingInstance.applyVote(1, { from: _owner }));
+        });
+
+        it("non-owner can't apply vote", async () => {
+            await expectRevert(votingInstance.applyVote(1, { from: _voter2 }),"Ownable: caller is not the owner");
+        });
+
+        it("owner can't apply vote in non-AdminVote VoteType", async () => {
+            await votingInstance.createnewVoteSession("Session 2", 0, { from: _sessionAdmin });
+            await votingInstance.addVoter(_voter2, 2, { from: _sessionAdmin });
+            await votingInstance.addVoter(_owner, 2, { from: _sessionAdmin });
+            await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+            await votingInstance.registerProposal("Proposal 1",2,0,0, { from: _voter2 })
+            await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+            await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+            await votingInstance.submitVote(1,2, { from: _voter2});
+            await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+            await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+            await expectRevert(votingInstance.applyVote(2, { from: _owner }),"You are not in a admin vote session");
+        });
+
+        it("owner can apply vote only once", async () => {
+            expect(await votingInstance.applyVote(1, { from: _owner }));
+            await expectRevert (votingInstance.applyVote(1, { from: _owner }),"Already applied");
+        });
+
+
+        it("vote maxProposalperSession is applied", async () => {
+            await votingInstance.applyVote(1, { from: _owner });
+            expect(await votingInstance.maxProposalperSession.call()).to.be.bignumber.equal("400");
+        });
+
+        it("vote maxVoterperSession is applied", async () => {
+            await votingInstance.createnewVoteSession("Session 2", 2, { from: _sessionAdmin });
+            await votingInstance.addVoter(_voter2, 2, { from: _sessionAdmin });
+            await votingInstance.addVoter(_owner, 2, { from: _sessionAdmin });
+            await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+            await votingInstance.registerProposal("Proposal 1", 2,2,800, { from: _voter2 })
+            await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+            await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+            await votingInstance.submitVote(1,2, { from: _voter2});
+            await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+            await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+            await votingInstance.applyVote(2, { from: _owner });
+            expect(await votingInstance.maxVoterperSession.call()).to.be.bignumber.equal("800");
+        });
+
+        it("event is correctly emmited when a apply vote is done", async () => {
+            const evenTx =  await votingInstance.applyVote(1, { from: _owner });
+            await expectEvent(evenTx, "SettingsApplied", { setting: BN(1), value: BN(400), sessionID: BN(1) });
+            await votingInstance.createnewVoteSession("Session 2", 2, { from: _sessionAdmin });
+            await votingInstance.addVoter(_voter2, 2, { from: _sessionAdmin });
+            await votingInstance.addVoter(_owner, 2, { from: _sessionAdmin });
+            await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+            await votingInstance.registerProposal("Proposal 1", 2,2,800, { from: _voter2 })
+            await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+            await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+            await votingInstance.submitVote(1,2, { from: _voter2});
+            await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+            await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+            const evenTx2 =  await votingInstance.applyVote(2, { from: _owner });
+            await expectEvent(evenTx2, "SettingsApplied", { setting: BN(2), value: BN(800), sessionID: BN(2) });
         });
     });
 
