@@ -276,22 +276,22 @@ contract("MyLittleDAO tests", accounts => {
         describe("Proposal creation tests", () => {
 
             it("voter can create a proposal", async () => {
-                expect(await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 }));
-                expect(await votingInstance.registerProposal("Proposal 2", 1, { from: _voter3 }));
+                expect(await votingInstance.registerProposal("Proposal 1", 1,0,0, { from: _voter2 }));
+                expect(await votingInstance.registerProposal("Proposal 2", 1,0,0, { from: _voter3 }));
             });
 
             it("non-voter can't create a proposal", async () => {
-                await expectRevert(votingInstance.registerProposal("Proposal 1", 1, { from: _sessionAdmin }), "You're not voter");
-                await expectRevert(votingInstance.registerProposal("Proposal 1", 1, { from: _nonVoter }), "You're not voter");
+                await expectRevert(votingInstance.registerProposal("Proposal 1", 1,0,0, { from: _sessionAdmin }), "You're not voter");
+                await expectRevert(votingInstance.registerProposal("Proposal 1", 1,0,0, { from: _nonVoter }), "You're not voter");
             });
 
             it("proposal description can't be empty", async () => {
-                await expectRevert(votingInstance.registerProposal("", 1, { from: _voter2 }), "Description can not be empty");
+                await expectRevert(votingInstance.registerProposal("", 1,0,0, { from: _voter2 }), "Description can not be empty");
             });
 
             it("proposal attributes are correctly stored", async () => {
-                await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 });
-                await votingInstance.registerProposal("Proposal 2", 1, { from: _voter3 });
+                await votingInstance.registerProposal("Proposal 1", 1,0,0, { from: _voter2 });
+                await votingInstance.registerProposal("Proposal 2", 1,0,0, { from: _voter3 });
                 const prop1 = await votingInstance.getProposal.call(1, 1, { from: _sessionAdmin });
                 const prop2 = await votingInstance.getProposal.call(2, 1, { from: _sessionAdmin });
 
@@ -303,22 +303,22 @@ contract("MyLittleDAO tests", accounts => {
 
             it("maxProposalperSession blocks new proposal creation", async () => {
                 await votingInstance.setMaxProposalperSession(1, { from: _owner });
-                expect(await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 }));
-                await expectRevert(votingInstance.registerProposal("Proposal 2", 1, { from: _voter3 }), "Max proposal per session reached");
+                expect(await votingInstance.registerProposal("Proposal 1", 1,0,0, { from: _voter2 }));
+                await expectRevert(votingInstance.registerProposal("Proposal 2", 1,0,0, { from: _voter3 }), "Max proposal per session reached");
             });
 
             it("event is correctly emmited when a proposal is created", async () => {
-                const evenTx = await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 });
+                const evenTx = await votingInstance.registerProposal("Proposal 1", 1,0,0, { from: _voter2 });
                 await expectEvent(evenTx, "ProposalRegistered", { proposalId: BN(1), sessionID: BN(1) });
-                const evenTx2 = await votingInstance.registerProposal("Proposal 2", 1, { from: _voter2 });
+                const evenTx2 = await votingInstance.registerProposal("Proposal 2", 1,0,0, { from: _voter2 });
                 await expectEvent(evenTx2, "ProposalRegistered", { proposalId: BN(2), sessionID: BN(1) });
             });
         });
 
         describe("Proposal get information tests", () => {
             beforeEach(async () => {
-                await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 });
-                await votingInstance.registerProposal("Proposal 2", 1, { from: _voter3 });
+                await votingInstance.registerProposal("Proposal 1", 1,0,0, { from: _voter2 });
+                await votingInstance.registerProposal("Proposal 2", 1,0,0, { from: _voter3 });
             });
 
             it("admin can get proposal information", async () => {
@@ -453,7 +453,7 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("voters can't donate after voting", async () => {
-                await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 })
+                await votingInstance.registerProposal("Proposal 1", 1,0,0, { from: _voter2 })
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
                 await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 });
@@ -545,9 +545,9 @@ contract("MyLittleDAO tests", accounts => {
                 await votingInstance.addVoter(_voter3, 1, { from: _sessionAdmin });
                 await votingInstance.addVoter(_voter4, 1, { from: _sessionAdmin });
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
-                await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 })
-                await votingInstance.registerProposal("Proposal 2", 1, { from: _voter2 })
-                await votingInstance.registerProposal("Proposal 3", 1, { from: _voter2 })
+                await votingInstance.registerProposal("Proposal 1", 1,0,0, { from: _voter2 })
+                await votingInstance.registerProposal("Proposal 2", 1,0,0, { from: _voter2 })
+                await votingInstance.registerProposal("Proposal 3", 1,0,0, { from: _voter2 })
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
             });
@@ -572,7 +572,7 @@ contract("MyLittleDAO tests", accounts => {
                 await votingInstance.addVoter(_voter3, 2, { from: _sessionAdmin });
                 await expectRevert(votingInstance.submitVote(1,2, { from: _voter2}), "Session status is not correct");
                 await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
-                await votingInstance.registerProposal("Proposal 1", 2, { from: _voter2 })
+                await votingInstance.registerProposal("Proposal 1", 2,0,0, { from: _voter2 })
                 await expectRevert(votingInstance.submitVote(1,2, { from: _voter2}), "Session status is not correct");
                 await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
                 await expectRevert(votingInstance.submitVote(1,2, { from: _voter2}), "Session status is not correct");
@@ -608,9 +608,9 @@ contract("MyLittleDAO tests", accounts => {
                 await votingInstance.addVoter(_voter3, 1, { from: _sessionAdmin });
                 await votingInstance.addVoter(_voter4, 1, { from: _sessionAdmin });
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
-                await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 })
-                await votingInstance.registerProposal("Proposal 2", 1, { from: _voter2 })
-                await votingInstance.registerProposal("Proposal 3", 1, { from: _voter2 })
+                await votingInstance.registerProposal("Proposal 1", 1,0,0, { from: _voter2 })
+                await votingInstance.registerProposal("Proposal 2", 1,0,0, { from: _voter2 })
+                await votingInstance.registerProposal("Proposal 3", 1,0,0, { from: _voter2 })
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
             });
@@ -649,9 +649,9 @@ contract("MyLittleDAO tests", accounts => {
                 await votingInstance.addVoter(_voter3, 1, { from: _sessionAdmin });
                 await votingInstance.addVoter(_voter4, 1, { from: _sessionAdmin });
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
-                await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 })
-                await votingInstance.registerProposal("Proposal 2", 1, { from: _voter2 })
-                await votingInstance.registerProposal("Proposal 3", 1, { from: _voter2 })
+                await votingInstance.registerProposal("Proposal 1", 1,0,0, { from: _voter2 })
+                await votingInstance.registerProposal("Proposal 2", 1,0,0, { from: _voter2 })
+                await votingInstance.registerProposal("Proposal 3", 1,0,0, { from: _voter2 })
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
             });
@@ -754,7 +754,7 @@ contract("MyLittleDAO tests", accounts => {
                 await votingInstance.createnewVoteSession("Session 1", 1, { from: _sessionAdmin });
                 await votingInstance.addVoter(_voter2, 1, { from: _sessionAdmin });
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
-                await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 })
+                await votingInstance.registerProposal("Proposal 1", 1,0,0, { from: _voter2 })
                 await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 });
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
                 await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
@@ -772,7 +772,7 @@ contract("MyLittleDAO tests", accounts => {
                 await votingInstance.addVoter(_voter3, 2, { from: _sessionAdmin });
                 await expectRevert(votingInstance.sessionWithdraw(2, { from: _sessionAdmin }), "Session status is not correct");
                 await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
-                await votingInstance.registerProposal("Proposal 1", 2, { from: _voter2 })
+                await votingInstance.registerProposal("Proposal 1",2,0,0, { from: _voter2 })
                 await votingInstance.sendDonation(2, { from: _voter2, value: 1000000000000000000 });
                 await expectRevert(votingInstance.sessionWithdraw(2, { from: _sessionAdmin }), "Session status is not correct");
                 await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
@@ -798,7 +798,7 @@ contract("MyLittleDAO tests", accounts => {
                 await votingInstance.createnewVoteSession("Session 2", 0, { from: _sessionAdmin });
                 await votingInstance.addVoter(_voter2, 2, { from: _sessionAdmin });
                 await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
-                await votingInstance.registerProposal("Proposal 1", 2, { from: _voter2 })
+                await votingInstance.registerProposal("Proposal 1",2,0,0, { from: _voter2 })
                 await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
                 await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
                 await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
