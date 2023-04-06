@@ -468,8 +468,21 @@ contract MyLittleDAO is Ownable {
         payable (voteWithdrawals[_sessionID].withdrawer).sendValue(sessionDonations[_sessionID]);
 
         emit WithdrawalSubmitted(sessionDonations[_sessionID],msg.sender,_sessionID);
+    }
 
+    /** @notice Change vote session withdrawer.
+        @dev Only session admin can transfer withdrawer.
+        @dev Session withdrawer can not be transfered to 0x0 or actual withdrawer address.
+        @param _address The new session withdrawer address.
+        @param _sessionID The vote session ID.*/
+
+    function transferSessionWithdrawer (address _address, uint64 _sessionID ) external validateSession(_sessionID) isSessionAdmin(_sessionID)  {
+        require(_address != address(0), "New admin can't be the zero address");
+        require(_address != voteWithdrawals[_sessionID].withdrawer, "New withdrawer can't be the actual");
         
+        voteWithdrawals[_sessionID].withdrawer = _address;
+
+        emit WithdrawerRegistered(_address,sessions);
     }
 
 }
