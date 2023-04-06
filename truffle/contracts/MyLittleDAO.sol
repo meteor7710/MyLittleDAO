@@ -29,7 +29,7 @@ contract MyLittleDAO is Ownable {
     mapping (uint64 => uint16) private winningProposals;
     mapping (uint64 => Withdraw) private voteWithdrawals;
     mapping (uint64 => uint) private sessionDonations;
-    /*mapping (uint64 => Setting) private sessionSettings;*/
+    mapping (uint64 => mapping(uint16 => Admin)) private sessionSettings;
 
     /************** Enumartions definitions **************/
     enum WorkflowStatus {
@@ -47,11 +47,11 @@ contract MyLittleDAO is Ownable {
         AdminVote
     }
 
-    /*enum Setting {
-        maxVoteSession,
+    enum Setting {
+        none,
         maxProposalperSession,
         maxVoterperSession
-    }*/
+    }
 
     /************** Strutures definitions **************/
     struct Voter {
@@ -79,10 +79,11 @@ contract MyLittleDAO is Ownable {
         bool hasWithdrawed;
     }
 
-    /*struct Admin {
+    struct Admin {
         Setting setting;
-        uint64 value;
-    }*/
+        uint16 value;
+        bool applied;
+    }
 
     /** @notice Initialize default contract values
         @dev maxVoteSession and maxVoter are initialized */
@@ -160,12 +161,12 @@ contract MyLittleDAO is Ownable {
         @param previousStatus The session previous workflowstatus.
         @param newStatus The session new workflowstatus.
         @param sessionID The session ID.*/
-    event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus,uint64 sessionID);  
+    event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus, uint64 sessionID);  
 
     /** @notice This event is emitted when a proposal is registrered.
         @param proposalId The registered proposal ID.
         @param sessionID The session ID.*/
-    event ProposalRegistered(uint16 proposalId,uint64 sessionID);
+    event ProposalRegistered(uint16 proposalId, uint64 sessionID );
 
     /** @notice This event is emitted when a donation is done.
         @param amount The donation amount.
@@ -184,6 +185,12 @@ contract MyLittleDAO is Ownable {
         @param withdrawer The withdrawer address.
         @param sessionID The session ID.*/
     event WithdrawalSubmitted(uint amount,address withdrawer,uint64 sessionID);
+
+    /** @notice This event is emitted a setting is modified by vote.
+        @param setting The setting modified.
+        @param value The new setting value.
+        @param sessionID The session ID.*/
+    event SettingsApplied(Setting setting,uint16 value,uint64 sessionID);
 
     /************** Modifier definitions **************/
 
@@ -242,6 +249,16 @@ contract MyLittleDAO is Ownable {
 
     function getProposal (uint16 _proposalID,uint64 _sessionID) external validateSession(_sessionID) validateProposal(_proposalID,_sessionID) onlyAdminOrVoters(_sessionID) view  returns (Proposal memory) {
        return voteProposals[_sessionID][_proposalID];
+    }
+
+    /** @notice Get Admin proposal informations.
+        @dev Retrieve session attributes.
+        @param _proposalID The session ID to query.
+        @param _sessionID The session ID to query.
+        @return Session The sessions informations.*/
+
+    function getAdminProposal (uint16 _proposalID,uint64 _sessionID) external validateSession(_sessionID) validateProposal(_proposalID,_sessionID) onlyAdminOrVoters(_sessionID) view  returns (Admin memory) {
+       return sessionSettings[_sessionID][_proposalID];
     }
 
     /** @notice Get winning proposal of a session.
@@ -397,13 +414,19 @@ contract MyLittleDAO is Ownable {
         @param _decription The proposal description.
         @param _sessionID The vote session ID.*/
 
-    function registerProposal (string calldata _decription, uint64 _sessionID) external validateSession(_sessionID) onlyVoters(_sessionID) validateStatus(_sessionID,1) {
+    function registerProposal (string calldata _decription, uint64 _sessionID, Setting _setting, uint16 _value) external validateSession(_sessionID) onlyVoters(_sessionID) validateStatus(_sessionID,1) {
         require((voteSessions[_sessionID].sessionProposals < maxProposalperSession), "Max proposal per session reached");
         require(keccak256(abi.encode(_decription)) != keccak256(abi.encode("")), "Description can not be empty");
        
         voteSessions[_sessionID].sessionProposals = ++ voteSessions[_sessionID].sessionProposals;
 
         voteProposals[_sessionID][voteSessions[_sessionID].sessionProposals].description = _decription;
+
+        if (voteSessions[_sessionID].voteType == VoteType.AdminVote)
+        {
+            sessionSettings[_sessionID][voteSessions[_sessionID].sessionProposals].setting = _setting;
+            sessionSettings[_sessionID][voteSessions[_sessionID].sessionProposals].value = _value;
+        }
 
         emit ProposalRegistered(voteSessions[_sessionID].sessionProposals,_sessionID);
     }
@@ -470,6 +493,10 @@ contract MyLittleDAO is Ownable {
 
     /************** Widthdrawals **************/
 
+    /** @notice Withdraw donations.
+        @dev Only withdrawer admin can use it.
+        @param _sessionID The vote session ID.*/
+
     function sessionWithdraw (  uint64 _sessionID) external  validateSession(_sessionID) validateStatus(_sessionID,5)  {
 
         require ( voteSessions[_sessionID].voteType == VoteType.PotVote,"You are not in a withdrawable session");
@@ -483,18 +510,29 @@ contract MyLittleDAO is Ownable {
         emit WithdrawalSubmitted(sessionDonations[_sessionID],msg.sender,_sessionID);
     }
 
-    /* @notice Change vote session withdrawer.
-        @dev Only session admin can transfer withdrawer.
-        @dev Session withdrawer can not be transfered to 0x0 or actual withdrawer address.
-        @param _address The new session withdrawer address.
+    /** @notice Apply admin vote.
+        @dev Only contract owner can use it.
         @param _sessionID The vote session ID.*/
 
-    /*function applyVote (uint64 _sessionID ) external validateSession(_sessionID) onlyOwner  {
+    function applyVote (uint64 _sessionID ) external validateSession(_sessionID) validateStatus(_sessionID,5) onlyOwner  {
 
+        require ( voteSessions[_sessionID].voteType == VoteType.AdminVote,"You are not in a admin vote session");
+        require ( !sessionSettings[_sessionID][winningProposals[_sessionID]].applied ,"Already applied");
 
+        if (sessionSettings[_sessionID][winningProposals[_sessionID]].setting == Setting.maxProposalperSession)
+        {
+            maxProposalperSession = sessionSettings[_sessionID][winningProposals[_sessionID]].value;
+        } 
 
-    }*/
+        if (sessionSettings[_sessionID][winningProposals[_sessionID]].setting == Setting.maxVoterperSession)
+        {
+            maxVoterperSession = sessionSettings[_sessionID][winningProposals[_sessionID]].value;
+        }  
 
+        sessionSettings[_sessionID][winningProposals[_sessionID]].applied = true;
+
+        emit SettingsApplied(sessionSettings[_sessionID][winningProposals[_sessionID]].setting, sessionSettings[_sessionID][winningProposals[_sessionID]].value,_sessionID);
+    }
 }
 
 
