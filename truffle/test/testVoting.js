@@ -46,6 +46,24 @@ contract("MyLittleDAO tests", accounts => {
             await expectRevert(votingInstance.setMaxVoteSession(100, { from: _sessionAdmin }), "Ownable: caller is not the owner");
         });
 
+        it("owner can change setMaxVoterperSession", async () => {
+            expect(await votingInstance.setMaxVoterperSession(10, { from: _owner }));
+            expect(await votingInstance.maxVoterperSession.call()).to.be.bignumber.equal("10");
+        });
+
+        it("non-owner can't change change setMaxVoterperSession", async () => {
+            await expectRevert(votingInstance.setMaxVoterperSession(100, { from: _sessionAdmin }), "Ownable: caller is not the owner");
+        });
+
+        it("owner can change setMaxProposalperSession", async () => {
+            expect(await votingInstance.setMaxProposalperSession(15, { from: _owner }));
+            expect(await votingInstance.maxProposalperSession.call()).to.be.bignumber.equal("15");
+        });
+
+        it("non-owner can't change change setMaxProposalperSession", async () => {
+            await expectRevert(votingInstance.setMaxProposalperSession(100, { from: _sessionAdmin }), "Ownable: caller is not the owner");
+        });
+
         it("event is correctly emmited when maxVoteSession is modified", async () => {
             const evenTx = await votingInstance.setMaxVoteSession(100, { from: _owner });
             await expectEvent(evenTx, "maxVoteSessionModification", { oldMaxVoteSession: BN(10000), newMaxVoteSession: BN(100) });
@@ -54,6 +72,11 @@ contract("MyLittleDAO tests", accounts => {
         it("event is correctly emmited when maxVoterperSessionModification is modified", async () => {
             const evenTx = await votingInstance.setMaxVoterperSession(10, { from: _owner });
             await expectEvent(evenTx, "maxVoterperSessionModification", { oldMaxVoterperSession: BN(100), newMaxVoterperSession: BN(10) });
+        });
+
+        it("event is correctly emmited when maxProposalperSessionModification is modified", async () => {
+            const evenTx = await votingInstance.setMaxProposalperSession(15, { from: _owner });
+            await expectEvent(evenTx, "maxProposalperSessionModification", { oldMaxProposalperSession: BN(100), newMaxProposalperSession: BN(15) });
         });
 
     });
@@ -991,8 +1014,4 @@ contract("MyLittleDAO tests", accounts => {
             await expectEvent(evenTx2, "SettingsApplied", { setting: BN(2), value: BN(800), sessionID: BN(2) });
         });
     });
-
-
-    //Getters tests
-
 });
