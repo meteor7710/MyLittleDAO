@@ -380,6 +380,7 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("non-voter can't donate", async () => {
+                await expectRevert(votingInstance.sendDonation(1, { from: _sessionAdmin, value: 1000000000000000000 }), "You're not a voter of this session");
                 await expectRevert(votingInstance.sendDonation(1, { from: _nonVoter, value: 1000000000000000000 }), "You're not a voter of this session");
             });
 
@@ -491,17 +492,198 @@ contract("MyLittleDAO tests", accounts => {
 
     //Votes tests
     describe("Votes tests", () => {
-        beforeEach(async () => {
-            await votingInstance.createnewVoteSession("Session 1", 1, { from: _sessionAdmin });
-            await votingInstance.addVoter(_voter2, 1, { from: _sessionAdmin });
-            await votingInstance.addVoter(_voter3, 1, { from: _sessionAdmin });
-            await votingInstance.addVoter(_voter4, 1, { from: _sessionAdmin });
-            await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
-            await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 })
-            await votingInstance.registerProposal("Proposal 2", 1, { from: _voter2 })
-            await votingInstance.registerProposal("Proposal 3", 1, { from: _voter2 })
+        
+        describe("Votes generic tests", () => {
+
+            beforeEach(async () => {
+                await votingInstance.createnewVoteSession("Session 1", 0, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter2, 1, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter3, 1, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter4, 1, { from: _sessionAdmin });
+                await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+                await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 })
+                await votingInstance.registerProposal("Proposal 2", 1, { from: _voter2 })
+                await votingInstance.registerProposal("Proposal 3", 1, { from: _voter2 })
+                await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+                await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+            });
+
+            it("vote submission can't be done to an unexisting session", async () => {
+                await expectRevert(votingInstance.submitVote(1,10, { from: _voter2}), "Session doesn't exist");
+            });
+
+            it("voter can submit vote", async () => {
+                expect(await votingInstance.submitVote(1,1, { from: _voter2}));
+                expect(await votingInstance.submitVote(1,1, { from: _voter3}));
+            });
+
+            it("non-voter can't submit vote", async () => {
+                await expectRevert(votingInstance.submitVote(1,1, { from: _sessionAdmin}), "You're not a voter of this session");
+                await expectRevert(votingInstance.submitVote(1,1, { from: _nonVoter}), "You're not a voter of this session");
+            });
+
+            it("voter can submit vote only in status VotingSessionStarted", async () => {
+                await votingInstance.createnewVoteSession("Session 2", 0, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter2, 2, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter3, 2, { from: _sessionAdmin });
+                await expectRevert(votingInstance.submitVote(1,2, { from: _voter2}), "Session status is not correct");
+                await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+                await votingInstance.registerProposal("Proposal 1", 2, { from: _voter2 })
+                await expectRevert(votingInstance.submitVote(1,2, { from: _voter2}), "Session status is not correct");
+                await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+                await expectRevert(votingInstance.submitVote(1,2, { from: _voter2}), "Session status is not correct");
+                await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+                expect(await votingInstance.submitVote(1,2, { from: _voter2}));
+                await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+                await expectRevert(votingInstance.submitVote(1,2, { from: _voter3}), "Session status is not correct");
+                await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+                await expectRevert(votingInstance.submitVote(1,2, { from: _voter3}), "Session status is not correct");
+            });
+
+            it("voter can only vote once", async () => {
+                expect(await votingInstance.submitVote(1,1, { from: _voter2}));
+                await expectRevert(votingInstance.submitVote(1,1, { from: _voter2}), "You have already voted");
+            });
+
+            it("voter can't vote for an unexisting proposal", async () => {
+                await expectRevert(votingInstance.submitVote(10,1, { from: _voter3}), "Proposal doesn't exist");
+            });
+
+            it("event is correctly emmited when a vote is submitted", async () => {
+                const evenTx = await votingInstance.submitVote(1,1, { from: _voter2});
+                await expectEvent(evenTx, "VoteSubmitted", { proposalID: BN(1), voter: _voter2, sessionID: BN(1) });
+                const evenTx2 = await votingInstance.submitVote(2,1, { from: _voter3});
+                await expectEvent(evenTx2, "VoteSubmitted", { proposalID: BN(2), voter: _voter3,sessionID: BN(1) });
+            });
         });
 
+        describe("Votes without vote power tests", () => {
+
+            beforeEach(async () => {
+                await votingInstance.createnewVoteSession("Session 1", 0, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter2, 1, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter3, 1, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter4, 1, { from: _sessionAdmin });
+                await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+                await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 })
+                await votingInstance.registerProposal("Proposal 2", 1, { from: _voter2 })
+                await votingInstance.registerProposal("Proposal 3", 1, { from: _voter2 })
+                await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+                await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+            });
+
+            it("validate votes are correctly stored on proposals", async () => {
+                await votingInstance.submitVote(1,1, { from: _voter2});
+                await votingInstance.submitVote(2,1, { from: _voter3});
+                await votingInstance.submitVote(1,1, { from: _voter4});
+                const prop1 = await votingInstance.getProposal.call(1, 1, { from: _sessionAdmin });
+                const prop2 = await votingInstance.getProposal.call(2, 1, { from: _sessionAdmin });
+                const prop3 = await votingInstance.getProposal.call(3, 1, { from: _sessionAdmin });
+                expect(prop1.voteCount).to.be.bignumber.equal("2");
+                expect(prop2.voteCount).to.be.bignumber.equal("1");
+                expect(prop3.voteCount).to.be.bignumber.equal("0");
+            });
+
+            it("validate winning proposal is correctly updated", async () => {
+                let win = await votingInstance.getWinningProposal.call(1, { from: _sessionAdmin });
+                expect(win).to.be.bignumber.equal("0");
+                await votingInstance.submitVote(1,1, { from: _voter2});
+                win = await votingInstance.getWinningProposal.call(1, { from: _sessionAdmin });
+                expect(win).to.be.bignumber.equal("1");
+                await votingInstance.submitVote(2,1, { from: _voter3});
+                win = await votingInstance.getWinningProposal.call(1, { from: _sessionAdmin });
+                expect(win).to.be.bignumber.equal("1");
+                await votingInstance.submitVote(2,1, { from: _voter4});
+                win = await votingInstance.getWinningProposal.call(1, { from: _sessionAdmin });
+                expect(win).to.be.bignumber.equal("2");
+            });
+        });
+
+        describe("Votes with vote power tests", () => {
+
+            beforeEach(async () => {
+                await votingInstance.createnewVoteSession("Session 1", 1, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter2, 1, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter3, 1, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter4, 1, { from: _sessionAdmin });
+                await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+                await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 })
+                await votingInstance.registerProposal("Proposal 2", 1, { from: _voter2 })
+                await votingInstance.registerProposal("Proposal 3", 1, { from: _voter2 })
+                await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+                await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+            });
+
+            it("voter can submit vote if they have donate", async () => {
+                await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 });
+                expect(await votingInstance.submitVote(1,1, { from: _voter2}));
+            });
+
+            it("voter can't submit vote if they haven't donate", async () => {
+                await expectRevert( votingInstance.submitVote(1,1, { from: _voter2}),"You must have donate to vote");
+            });
+
+            it("validate votes are correctly stored on proposals", async () => {
+                await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 });
+                await votingInstance.sendDonation(1, { from: _voter3, value: 5000000000000000000 });
+                await votingInstance.sendDonation(1, { from: _voter4, value: 1500000000000000000 });
+                await votingInstance.submitVote(1,1, { from: _voter2});
+                await votingInstance.submitVote(2,1, { from: _voter3});
+                await votingInstance.submitVote(3,1, { from: _voter4});
+                const prop1 = await votingInstance.getProposal.call(1, 1, { from: _sessionAdmin });
+                const prop2 = await votingInstance.getProposal.call(2, 1, { from: _sessionAdmin });
+                const prop3 = await votingInstance.getProposal.call(3, 1, { from: _sessionAdmin });
+                expect(prop1.voteCount).to.be.bignumber.equal("1000000000000000000");
+                expect(prop2.voteCount).to.be.bignumber.equal("5000000000000000000");
+                expect(prop3.voteCount).to.be.bignumber.equal("1500000000000000000");
+            });
+
+            it("validate winning proposal is correctly updated", async () => {
+                let win = await votingInstance.getWinningProposal.call(1, { from: _sessionAdmin });
+                expect(win).to.be.bignumber.equal("0");
+                await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 });
+                await votingInstance.submitVote(1,1, { from: _voter2});
+                win = await votingInstance.getWinningProposal.call(1, { from: _sessionAdmin });
+                expect(win).to.be.bignumber.equal("1");
+                await votingInstance.sendDonation(1, { from: _voter3, value: 1000000000000000000 });
+                await votingInstance.submitVote(2,1, { from: _voter3});
+                win = await votingInstance.getWinningProposal.call(1, { from: _sessionAdmin });
+                expect(win).to.be.bignumber.equal("1");
+                await votingInstance.sendDonation(1, { from: _voter4, value: 3000000000000000000 });
+                await votingInstance.submitVote(3,1, { from: _voter4});
+                win = await votingInstance.getWinningProposal.call(1, { from: _sessionAdmin });
+                expect(win).to.be.bignumber.equal("3");
+            });
+        });
+
+        describe("Winning proposal get information tests", () => {
+           
+            beforeEach(async () => {
+                await votingInstance.createnewVoteSession("Session 1", 0, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter2, 1, { from: _sessionAdmin });
+            });
+
+            it("admin can get donations information", async () => {
+                expect(await votingInstance.getWinningProposal(1, { from: _sessionAdmin }));
+            });
+
+            it("voter can get donations information", async () => {
+                expect(await votingInstance.getWinningProposal(1, { from: _voter2 }));
+            });
+
+            it("admin and voter can't get winning proposal of an unexisting session", async () => {
+                await expectRevert(votingInstance.getWinningProposal(11, { from: _sessionAdmin }), "Session doesn't exist");
+                await expectRevert(votingInstance.getWinningProposal(11, { from: _voter2 }), "Session doesn't exist");
+            });
+
+            it("non-voter can't get donations information", async () => {
+                await expectRevert(votingInstance.getWinningProposal(1, { from: _nonVoter }), "You're not a voter or admin of this session");
+            });
+
+            it("winning proposalID correctly returned", async () => {
+                expect(await votingInstance.getWinningProposal(1, { from: _voter2 }) == 0);
+            });
+        });
     });
 
 
