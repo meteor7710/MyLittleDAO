@@ -124,7 +124,7 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("non-voter can't get session information", async () => {
-                await expectRevert(votingInstance.getSession(1, { from: _nonVoter }), "You're not a voter or admin of this session");
+                await expectRevert(votingInstance.getSession(1, { from: _nonVoter }), "You're not voter/admin");
             });
 
             it("session attributes are correctly returned", async () => {
@@ -281,8 +281,8 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("non-voter can't create a proposal", async () => {
-                await expectRevert(votingInstance.registerProposal("Proposal 1", 1, { from: _sessionAdmin }), "You're not a voter of this session");
-                await expectRevert(votingInstance.registerProposal("Proposal 1", 1, { from: _nonVoter }), "You're not a voter of this session");
+                await expectRevert(votingInstance.registerProposal("Proposal 1", 1, { from: _sessionAdmin }), "You're not voter");
+                await expectRevert(votingInstance.registerProposal("Proposal 1", 1, { from: _nonVoter }), "You're not voter");
             });
 
             it("proposal description can't be empty", async () => {
@@ -342,8 +342,8 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("non-voter can't get proposal information", async () => {
-                await expectRevert(votingInstance.getProposal.call(1, 1, { from: _nonVoter }), "You're not a voter or admin of this session");
-                await expectRevert(votingInstance.getProposal.call(2, 1, { from: _nonVoter }), "You're not a voter or admin of this session");
+                await expectRevert(votingInstance.getProposal.call(1, 1, { from: _nonVoter }), "You're not voter/admin");
+                await expectRevert(votingInstance.getProposal.call(2, 1, { from: _nonVoter }), "You're not voter/admin");
             });
 
             it("proposal information are correctly returned", async () => {
@@ -380,8 +380,8 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("non-voter can't donate", async () => {
-                await expectRevert(votingInstance.sendDonation(1, { from: _sessionAdmin, value: 1000000000000000000 }), "You're not a voter of this session");
-                await expectRevert(votingInstance.sendDonation(1, { from: _nonVoter, value: 1000000000000000000 }), "You're not a voter of this session");
+                await expectRevert(votingInstance.sendDonation(1, { from: _sessionAdmin, value: 1000000000000000000 }), "You're not voter");
+                await expectRevert(votingInstance.sendDonation(1, { from: _nonVoter, value: 1000000000000000000 }), "You're not voter");
             });
 
             it("only PotVote session accept donation", async () => {
@@ -491,8 +491,8 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("non-voter can't get donations information", async () => {
-                await expectRevert(votingInstance.getVoterDonations.call(_voter2, 1, { from: _nonVoter }), "You're not a voter or admin of this session");
-                await expectRevert(votingInstance.getVoterDonations.call(_voter3, 1, { from: _nonVoter }), "You're not a voter or admin of this session");
+                await expectRevert(votingInstance.getVoterDonations.call(_voter2, 1, { from: _nonVoter }), "You're not voter/admin");
+                await expectRevert(votingInstance.getVoterDonations.call(_voter3, 1, { from: _nonVoter }), "You're not voter/admin");
             });
 
             it("donations are correctly returned", async () => {
@@ -525,7 +525,7 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("non-voter can't get donations information", async () => {
-                await expectRevert(votingInstance.getSessionDonations.call(1, { from: _nonVoter }), "You're not a voter or admin of this session");
+                await expectRevert(votingInstance.getSessionDonations.call(1, { from: _nonVoter }), "You're not voter/admin");
             });
 
             it("donations are correctly returned", async () => {
@@ -562,8 +562,8 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("non-voter can't submit vote", async () => {
-                await expectRevert(votingInstance.submitVote(1,1, { from: _sessionAdmin}), "You're not a voter of this session");
-                await expectRevert(votingInstance.submitVote(1,1, { from: _nonVoter}), "You're not a voter of this session");
+                await expectRevert(votingInstance.submitVote(1,1, { from: _sessionAdmin}), "You're not voter");
+                await expectRevert(votingInstance.submitVote(1,1, { from: _nonVoter}), "You're not voter");
             });
 
             it("voter can submit vote only in status VotingSessionStarted", async () => {
@@ -718,7 +718,7 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("non-voter can't get donations information", async () => {
-                await expectRevert(votingInstance.getWinningProposal.call(1, { from: _nonVoter }), "You're not a voter or admin of this session");
+                await expectRevert(votingInstance.getWinningProposal.call(1, { from: _nonVoter }), "You're not voter/admin");
             });
 
             it("winning proposalID correctly returned", async () => {

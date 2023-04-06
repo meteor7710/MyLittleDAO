@@ -29,6 +29,7 @@ contract MyLittleDAO is Ownable {
     mapping (uint64 => uint16) private winningProposals;
     mapping (uint64 => Withdraw) private voteWithdrawals;
     mapping (uint64 => uint) private sessionDonations;
+    /*mapping (uint64 => Setting) private sessionSettings;*/
 
     /************** Enumartions definitions **************/
     enum WorkflowStatus {
@@ -45,6 +46,12 @@ contract MyLittleDAO is Ownable {
         PotVote,
         AdminVote
     }
+
+    /*enum Setting {
+        maxVoteSession,
+        maxProposalperSession,
+        maxVoterperSession
+    }*/
 
     /************** Strutures definitions **************/
     struct Voter {
@@ -72,6 +79,11 @@ contract MyLittleDAO is Ownable {
         bool hasWithdrawed;
     }
 
+    /*struct Admin {
+        Setting setting;
+        uint64 value;
+    }*/
+
     /** @notice Initialize default contract values
         @dev maxVoteSession and maxVoter are initialized */
     constructor (){
@@ -97,7 +109,7 @@ contract MyLittleDAO is Ownable {
     /** @notice This event is emitted when a transfer is received.
         @param voterAddress The source account.
         @param amount The amount received. */
-    event transferReceived(address voterAddress, uint amount);
+    event transferReceived(address voterAddress, uint amount); 
 
     /** @notice This event is emitted when a bad call is received.
         @param voterAddress The source account.
@@ -196,12 +208,12 @@ contract MyLittleDAO is Ownable {
     }
 
     modifier onlyAdminOrVoters(uint64 _sessionID) {
-        require(voters[_sessionID][msg.sender].isRegistered || msg.sender == voteSessions[_sessionID].sessionAdmin, "You're not a voter or admin of this session");
+        require(voters[_sessionID][msg.sender].isRegistered || msg.sender == voteSessions[_sessionID].sessionAdmin, "You're not voter/admin");
         _;
     }
 
     modifier onlyVoters(uint64 _sessionID) {
-        require(voters[_sessionID][msg.sender].isRegistered , "You're not a voter of this session");
+        require(voters[_sessionID][msg.sender].isRegistered , "You're not voter");
         _;
     }
 
@@ -302,6 +314,7 @@ contract MyLittleDAO is Ownable {
             voteWithdrawals[sessions].withdrawer = msg.sender;
             emit WithdrawerRegistered(msg.sender,sessions);
         }
+
                
         emit sessionCreated(sessions);
     }
@@ -470,20 +483,17 @@ contract MyLittleDAO is Ownable {
         emit WithdrawalSubmitted(sessionDonations[_sessionID],msg.sender,_sessionID);
     }
 
-    /** @notice Change vote session withdrawer.
+    /* @notice Change vote session withdrawer.
         @dev Only session admin can transfer withdrawer.
         @dev Session withdrawer can not be transfered to 0x0 or actual withdrawer address.
         @param _address The new session withdrawer address.
         @param _sessionID The vote session ID.*/
 
-    function transferSessionWithdrawer (address _address, uint64 _sessionID ) external validateSession(_sessionID) isSessionAdmin(_sessionID)  {
-        require(_address != address(0), "New admin can't be the zero address");
-        require(_address != voteWithdrawals[_sessionID].withdrawer, "New withdrawer can't be the actual");
-        
-        voteWithdrawals[_sessionID].withdrawer = _address;
+    /*function applyVote (uint64 _sessionID ) external validateSession(_sessionID) onlyOwner  {
 
-        emit WithdrawerRegistered(_address,sessions);
-    }
+
+
+    }*/
 
 }
 
