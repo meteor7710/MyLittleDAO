@@ -456,7 +456,7 @@ contract("MyLittleDAO tests", accounts => {
             });
         });
 
-        describe("Donations get information tests", () => {
+        describe("Voter donations get information tests", () => {
             beforeEach(async () => {
                 await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 });
                 await votingInstance.sendDonation(1, { from: _voter3, value: 1000000000000000000 });
@@ -488,6 +488,36 @@ contract("MyLittleDAO tests", accounts => {
                 expect(await votingInstance.getVoterDonations(_voter4, 1, { from: _voter2 }) == 0);
             });
         });
+
+        describe("Session donations get information tests", () => {
+            beforeEach(async () => {
+                await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 });
+                await votingInstance.sendDonation(1, { from: _voter3, value: 1000000000000000000 });
+            });
+
+            it("admin can get donations information", async () => {
+                expect(await votingInstance.getSessionDonations(1, { from: _sessionAdmin }));
+            });
+
+            it("voter can get donations information", async () => {
+                expect(await votingInstance.getSessionDonations(1, { from: _voter2 }));
+            });
+
+            it("admin and voter can't get donations information of an unexisting session", async () => {
+                await expectRevert(votingInstance.getSessionDonations(11, { from: _sessionAdmin }), "Session doesn't exist");
+                await expectRevert(votingInstance.getSessionDonations(11, { from: _voter2 }), "Session doesn't exist");
+            });
+
+            it("non-voter can't get donations information", async () => {
+                await expectRevert(votingInstance.getSessionDonations(1, { from: _nonVoter }), "You're not a voter or admin of this session");
+            });
+
+            it("donations are correctly returned", async () => {
+                expect(await votingInstance.getSessionDonations(1, { from: _voter2 }) == 2000000000000000000);
+            });
+        });
+
+
     });
 
     //Votes tests
