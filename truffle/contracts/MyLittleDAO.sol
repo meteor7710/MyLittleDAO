@@ -2,6 +2,7 @@
 
 pragma solidity 0.8.19;
 import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
+import "../node_modules/@openzeppelin/contracts/utils/Address.sol";
 
 
 /** @title A voting system contract
@@ -10,6 +11,8 @@ import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
     @dev 
 */
 contract MyLittleDAO is Ownable {
+
+    using Address for address payable;
 
     /************** States variables definitions **************/
     uint64 public maxVoteSession;
@@ -24,6 +27,8 @@ contract MyLittleDAO is Ownable {
     mapping (uint64 => Session) private voteSessions;
     mapping (uint64 => mapping(address => uint)) private donations;
     mapping (uint64 => uint16) private winningProposals;
+    mapping (uint64 => Withdraw) private voteWithdrawals;
+    mapping (uint64 => uint) private sessionDonations;
 
     /************** Enumartions definitions **************/
     enum WorkflowStatus {
@@ -60,6 +65,11 @@ contract MyLittleDAO is Ownable {
     struct Proposal {
         string description;
         uint voteCount;
+    }
+
+    struct Withdraw {
+        address withdrawer;
+        bool hasWithdrawed;
     }
 
     /** @notice Initialize default contract values
@@ -152,6 +162,12 @@ contract MyLittleDAO is Ownable {
         @param sessionID The session ID.*/
     event VoteSubmitted(uint16 proposalID, address voter,uint64 sessionID);
 
+    /** @notice This event is emitted when a withdraw is submitted.
+        @param amount The amount withdrawed.
+        @param withdrawer The withdrawer address.
+        @param sessionID The session ID.*/
+    event WithdrawalSubmitted(uint amount,address withdrawer,uint64 sessionID);
+
     /************** Modifier definitions **************/
 
     modifier isSessionAdmin(uint64 _sessionID){  
@@ -224,10 +240,19 @@ contract MyLittleDAO is Ownable {
         @dev only voters or admin can get voter donations.
         @param _addr The voter address.
         @param _sessionID The vote session ID.
-        @return voterDonations The sessions informations.*/
+        @return voterAmount The voter donation amount.*/
 
-    function getVoterDonations (address _addr , uint64 _sessionID) public validateSession(_sessionID) onlyAdminOrVoters(_sessionID) view  returns (uint voterDonations) {
+    function getVoterDonations (address _addr , uint64 _sessionID) public validateSession(_sessionID) onlyAdminOrVoters(_sessionID) view  returns (uint voterAmount) {
        return donations[_sessionID][_addr];
+    }
+
+    /** @notice Get donations for a session.
+        @dev only voters or admin can get voter donations.
+        @param _sessionID The vote session ID.
+        @return sessionAmount The session donation amount.*/
+
+    function getSessionDonations (uint64 _sessionID) public validateSession(_sessionID) onlyAdminOrVoters(_sessionID) view  returns (uint sessionAmount) {
+       return sessionDonations[_sessionID];
     }
 
 
@@ -258,6 +283,8 @@ contract MyLittleDAO is Ownable {
         voteSessions[sessions].sessionAdmin = msg.sender;
         voteSessions[sessions].title = _title;
         voteSessions[sessions].voteType = _voteType;
+
+        voteWithdrawals[sessions].withdrawer = msg.sender;
                
         emit sessionCreated(sessions);
     }
@@ -374,6 +401,8 @@ contract MyLittleDAO is Ownable {
 
         donations[_sessionID][msg.sender] = donations[_sessionID][msg.sender] + msg.value;
 
+        sessionDonations[_sessionID] = sessionDonations[_sessionID] + msg.value;
+
         emit DonationRegistered(msg.value,msg.sender,_sessionID);
     }
 
@@ -409,4 +438,23 @@ contract MyLittleDAO is Ownable {
         emit VoteSubmitted(_proposalID,msg.sender,_sessionID);
     }
 
+    /************** Widthdrawals **************/
+
+    function sessionWithdraw (  uint64 _sessionID) external  validateSession(_sessionID) validateStatus(_sessionID,5)  {
+
+        require ( voteSessions[_sessionID].voteType == VoteType.PotVote,"You are not in a withdrawable session");
+        require ( voteWithdrawals[_sessionID].withdrawer == msg.sender ,"You are not allowed to withdraw");
+        require ( !voteWithdrawals[_sessionID].hasWithdrawed ,"You have already withdrawed");
+
+        voteWithdrawals[_sessionID].hasWithdrawed = true;
+
+        payable (voteWithdrawals[_sessionID].withdrawer).sendValue(sessionDonations[_sessionID]);
+
+        emit WithdrawalSubmitted(sessionDonations[_sessionID],msg.sender,_sessionID);
+
+        
+    }
+
 }
+
+
