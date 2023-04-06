@@ -434,9 +434,16 @@ contract("MyLittleDAO tests", accounts => {
             });
 
             it("donations are cumulated on mapping", async () => {
-                await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 });;
+                await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 });
                 await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 });
                 expect(await votingInstance.getVoterDonations(_voter2, 1, { from: _voter2 }) == 2000000000000000000);
+            });
+
+            it("session donations are cumulated on mapping", async () => {
+                await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 });
+                await votingInstance.sendDonation(1, { from: _voter3, value: 1000000000000000000 });
+                await votingInstance.sendDonation(1, { from: _voter4, value: 3000000000000000000 });
+                expect(await votingInstance.getSessionDonations( 1, { from: _voter2 }) == 5000000000000000000);
             });
 
             it("voters can't donate after voting", async () => {
