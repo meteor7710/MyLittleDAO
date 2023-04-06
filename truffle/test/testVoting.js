@@ -313,6 +313,26 @@ contract("MyLittleDAO tests", accounts => {
                 const evenTx2 = await votingInstance.registerProposal("Proposal 2", 1,0,0, { from: _voter2 });
                 await expectEvent(evenTx2, "ProposalRegistered", { proposalId: BN(2), sessionID: BN(1) });
             });
+
+
+            it("admin proposal attributes are correctly stored", async () => {
+                await votingInstance.createnewVoteSession("Session 2", 2, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter2, 2, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter3, 2, { from: _sessionAdmin });
+                await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+                
+                await votingInstance.registerProposal("Proposal 1", 2,1,10000, { from: _voter2 });
+                await votingInstance.registerProposal("Proposal 2", 2,2,20000, { from: _voter3 });
+                const prop1 = await votingInstance.getAdminProposal.call(1, 2, { from: _sessionAdmin });
+                const prop2 = await votingInstance.getAdminProposal.call(2, 2, { from: _sessionAdmin });
+
+                expect(prop1.setting).to.be.bignumber.equal("1");
+                expect(prop1.value).to.be.bignumber.equal("10000");
+                expect(prop1.applied).to.be.false;
+                expect(prop2.setting).to.be.bignumber.equal("2");
+                expect(prop2.value).to.be.bignumber.equal("20000");
+                expect(prop2.applied).to.be.false;
+            });
         });
 
         describe("Proposal get information tests", () => {
