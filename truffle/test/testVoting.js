@@ -1030,7 +1030,7 @@ contract("MyLittleDAO tests", accounts => {
         it("non-admin can't change workflowstatus", async () => {
             await votingInstance.createnewVoteSession("Session 1", 0, { from: _sessionAdmin });
             await votingInstance.addVoter(_voter2, 1, { from: _sessionAdmin });
-            await expectRevert( votingInstance.changeWorkflowStatus(1, { from: _voter2 }),"You are not the session admin");
+            await expectRevert(votingInstance.changeWorkflowStatus(1, { from: _voter2 }), "You are not the session admin");
         });
 
         it("admin can't change workflowstatus to an unexisting session", async () => {
