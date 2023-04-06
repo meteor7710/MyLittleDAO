@@ -728,6 +728,110 @@ contract("MyLittleDAO tests", accounts => {
         });
     });
     
+    //Withdraw tests
+    describe("Withdraw tests", () => {
+
+        describe("Withdrawer tests", () => {
+
+            it("withdrawer is set at PotVote session creation", async () => {
+                await votingInstance.createnewVoteSession("Session 1", 1, { from: _sessionAdmin });
+                const withdrawer = await votingInstance.getSessionWithdrawer.call (1, { from: _sessionAdmin });
+                expect(withdrawer).to.be.equal(_sessionAdmin);
+            });
+
+            it("withdrawer is not set at none PotVote session creation", async () => {
+                await votingInstance.createnewVoteSession("Session 1", 0, { from: _sessionAdmin });
+                const withdrawer1 = await votingInstance.getSessionWithdrawer (1, { from: _sessionAdmin });
+                await votingInstance.createnewVoteSession("Session 2", 2, { from: _sessionAdmin });
+                const withdrawer2 = await votingInstance.getSessionWithdrawer (2, { from: _sessionAdmin });
+                expect(withdrawer1).to.be.equal("0x0000000000000000000000000000000000000000");
+                expect(withdrawer2).to.be.equal("0x0000000000000000000000000000000000000000");
+            });
+        });
+
+        describe("Withdraw tests", () => {
+            beforeEach(async () => {
+                await votingInstance.createnewVoteSession("Session 1", 1, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter2, 1, { from: _sessionAdmin });
+                await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+                await votingInstance.registerProposal("Proposal 1", 1, { from: _voter2 })
+                await votingInstance.sendDonation(1, { from: _voter2, value: 1000000000000000000 });
+                await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+                await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+                await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+                await votingInstance.changeWorkflowStatus(1, { from: _sessionAdmin });
+            });
+
+            it("vote submission can't be done to an unexisting session", async () => {
+                await expectRevert(votingInstance.sessionWithdraw(11, { from: _sessionAdmin }), "Session doesn't exist");
+            });
+
+            it("voter can withdraw donations only in status VotesTallied", async () => {
+                await votingInstance.createnewVoteSession("Session 2", 1, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter2, 2, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter3, 2, { from: _sessionAdmin });
+                await expectRevert(votingInstance.sessionWithdraw(2, { from: _sessionAdmin }), "Session status is not correct");
+                await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+                await votingInstance.registerProposal("Proposal 1", 2, { from: _voter2 })
+                await votingInstance.sendDonation(2, { from: _voter2, value: 1000000000000000000 });
+                await expectRevert(votingInstance.sessionWithdraw(2, { from: _sessionAdmin }), "Session status is not correct");
+                await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+                await expectRevert(votingInstance.sessionWithdraw(2, { from: _sessionAdmin }), "Session status is not correct");
+                await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+                await expectRevert(votingInstance.sessionWithdraw(2, { from: _sessionAdmin }), "Session status is not correct");
+                expect(await votingInstance.submitVote(1,2, { from: _voter2}));
+                await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+                await expectRevert(votingInstance.sessionWithdraw(2, { from: _sessionAdmin }), "Session status is not correct");
+                await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+                expect(await votingInstance.sessionWithdraw(2, { from: _sessionAdmin }));
+            });
+
+            it("whitdrawer can withdraw donations", async () => {
+                expect(await votingInstance.sessionWithdraw(1, { from: _sessionAdmin }));
+            });
+
+            it("non-whitdrawer can't withdraw donations", async () => {
+                await expectRevert(votingInstance.sessionWithdraw(1, { from: _voter2 }),"You are not allowed to withdraw");
+            });
+
+            it("whitdrawer can't withdraw in non-PotVote VoteType", async () => {
+                await votingInstance.createnewVoteSession("Session 2", 0, { from: _sessionAdmin });
+                await votingInstance.addVoter(_voter2, 2, { from: _sessionAdmin });
+                await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+                await votingInstance.registerProposal("Proposal 1", 2, { from: _voter2 })
+                await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+                await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+                await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+                await votingInstance.changeWorkflowStatus(2, { from: _sessionAdmin });
+                await expectRevert(votingInstance.sessionWithdraw(2, { from: _sessionAdmin }),"You are not in a withdrawable session");
+            });
+
+            it("whitdrawer can withdraw donations only once", async () => {
+                expect(await votingInstance.sessionWithdraw(1, { from: _sessionAdmin }));
+                await expectRevert (votingInstance.sessionWithdraw(1, { from: _sessionAdmin }),"You have already withdrawed");
+            });
+
+            it("donation is debitted on smartcontract", async () => {
+                const balance1 = await web3.eth.getBalance(votingInstance.address) ;
+                expect(balance1).to.be.bignumber.equal("1000000000000000000");
+                await votingInstance.sessionWithdraw(1, { from: _sessionAdmin });
+                const balance2 = await web3.eth.getBalance(votingInstance.address);
+                expect(balance2).to.be.bignumber.equal("0");
+            });
+
+            it("donation is credited on withdrawer", async () => {
+                const balance1 = await web3.eth.getBalance(_sessionAdmin) ;
+                await votingInstance.sessionWithdraw(1, { from: _sessionAdmin });
+                const balance2 = await web3.eth.getBalance(_sessionAdmin);
+                expect(balance2).to.be.bignumber.above(balance1);
+            });
+
+            it("event is correctly emmited when a withdrawal is done", async () => {
+                const evenTx =  await votingInstance.sessionWithdraw(1, { from: _sessionAdmin });
+                await expectEvent(evenTx, "WithdrawalSubmitted", { amount: BN("1000000000000000000"), withdrawer: _sessionAdmin, sessionID: BN(1) });
+            });
+        });
+    });
 
 
     //Getters tests
