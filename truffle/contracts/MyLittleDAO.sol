@@ -400,6 +400,20 @@ contract MyLittleDAO is Ownable {
     function changeWorkflowStatus (uint64 _sessionID) external validateSession(_sessionID) isSessionAdmin(_sessionID) {
         require((voteSessions[_sessionID].workflowStatus != WorkflowStatus.VotesTallied), "This Session is already finished !");
 
+        if ((voteSessions[_sessionID].workflowStatus == WorkflowStatus.RegisteringVoters)){
+            require((voteSessions[_sessionID].sessionVoters > 0), "You must have 1 voter");
+        }
+
+        if ((voteSessions[_sessionID].workflowStatus == WorkflowStatus.ProposalsRegistrationStarted)){
+            require((voteSessions[_sessionID].sessionProposals > 0), "You must have 1 proposal");
+        }
+
+        if ((voteSessions[_sessionID].workflowStatus == WorkflowStatus.VotingSessionStarted)){
+            require(!(winningProposals[_sessionID] == 0), "You must have 1 vote");
+        }
+
+
+
         WorkflowStatus previousStatus = voteSessions[_sessionID].workflowStatus;
         voteSessions[_sessionID].workflowStatus = WorkflowStatus(uint(voteSessions[_sessionID].workflowStatus) + 1);
 
@@ -418,7 +432,7 @@ contract MyLittleDAO is Ownable {
         require((voteSessions[_sessionID].sessionProposals < maxProposalperSession), "Max proposal per session reached");
         require(keccak256(abi.encode(_decription)) != keccak256(abi.encode("")), "Description can not be empty");
        
-        voteSessions[_sessionID].sessionProposals = ++ voteSessions[_sessionID].sessionProposals;
+        voteSessions[_sessionID].sessionProposals = ++voteSessions[_sessionID].sessionProposals;
 
         voteProposals[_sessionID][voteSessions[_sessionID].sessionProposals].description = _decription;
 
