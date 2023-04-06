@@ -139,6 +139,11 @@ contract MyLittleDAO is Ownable {
         @param sessionID The session ID.*/
     event VoterUnregistered(address voterAddress, uint64 sessionID);
 
+    /** @notice This event is emitted when a withdrawer is registered.
+        @param withdrawerAddress The voter adress.
+        @param sessionID The session ID.*/
+    event WithdrawerRegistered(address withdrawerAddress, uint64 sessionID);
+
     /** @notice This event is emitted a session workflowstatus is changed.
         @param previousStatus The session previous workflowstatus.
         @param newStatus The session new workflowstatus.
@@ -255,6 +260,15 @@ contract MyLittleDAO is Ownable {
        return sessionDonations[_sessionID];
     }
 
+    /** @notice Get withdrawer for a session.
+        @dev only voters or admin can get voter donations.
+        @param _sessionID The vote session ID.
+        @return sessionWithdrawer The session withdrawer.*/
+
+    function getSessionWithdrawer (uint64 _sessionID) public validateSession(_sessionID) onlyAdminOrVoters(_sessionID) view  returns (address sessionWithdrawer) {
+       return voteWithdrawals[_sessionID].withdrawer;
+    }
+
 
     /************** Vote sessions **************/
 
@@ -286,6 +300,7 @@ contract MyLittleDAO is Ownable {
         if (_voteType == VoteType.PotVote)
         {
             voteWithdrawals[sessions].withdrawer = msg.sender;
+            emit WithdrawerRegistered(msg.sender,sessions);
         }
                
         emit sessionCreated(sessions);
