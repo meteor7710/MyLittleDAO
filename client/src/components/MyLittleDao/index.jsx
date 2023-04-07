@@ -2,9 +2,9 @@ import useEth from "../../contexts/EthContext/useEth";
 import NoticeNoArtifact from "./NoticeNoArtifact";
 import NoticeWrongNetwork from "./NoticeWrongNetwork";
 import Address from "../Address/AddressConnected";
+import MainTabs from "../Tabs/MainTabs"
 import { Container, Box } from '@chakra-ui/react';
 import { useState,useEffect } from "react";
-import Session from "../Session/SessionCreation"
 
 function MyLittleDAO() {
   const { state } = useEth();
@@ -23,7 +23,7 @@ function MyLittleDAO() {
 
   const dapp =
     <>
-      <Session />
+        <MainTabs />
     </>;
 
   return (
