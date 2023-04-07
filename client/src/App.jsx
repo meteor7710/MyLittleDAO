@@ -1,14 +1,14 @@
 import { EthProvider } from "./contexts/EthContext";
 import MyLittleDao from "./components/MyLittleDao";
+import Footer from "./components/Footer";
 
 function App() {
   return (
     <EthProvider>
       <div id="App">
-        <div className="container">
           <span> Hello !</span>
           <MyLittleDao />
-        </div>
+          <Footer />
       </div>
     </EthProvider>
   );
