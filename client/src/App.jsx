@@ -6,7 +6,6 @@ function App() {
   return (
     <EthProvider>
       <div id="App">
-          <span> Hello !</span>
           <MyLittleDao />
           <Footer />
       </div>
