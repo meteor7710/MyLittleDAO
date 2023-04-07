@@ -118,40 +118,27 @@ contract MyLittleDAO is Ownable {
     /** @notice This event is emitted when the variable maxVoteSession is modified.
         @param oldMaxVoteSession The old max vote session limit.
         @param newMaxVoteSession The new max vote session limit.*/
-    event maxVoteSessionModification(
-        uint64 oldMaxVoteSession,
-        uint64 newMaxVoteSession
-    );
+    event maxVoteSessionModification(uint64 oldMaxVoteSession, uint64 newMaxVoteSession);
 
     /** @notice This event is emitted when the variable maxVoterperSession is modified.
         @param oldMaxVoterperSession The old max voter per session limit.
         @param newMaxVoterperSession The new max voter per session limit.*/
-    event maxVoterperSessionModification(
-        uint16 oldMaxVoterperSession,
-        uint16 newMaxVoterperSession
-    );
+    event maxVoterperSessionModification(uint16 oldMaxVoterperSession, uint16 newMaxVoterperSession);
 
     /** @notice This event is emitted when the variable maxProposalperSession is modified.
         @param oldMaxProposalperSession The old max proposal per session limit.
         @param newMaxProposalperSession The new max proposal per session limit.*/
-    event maxProposalperSessionModification(
-        uint16 oldMaxProposalperSession,
-        uint16 newMaxProposalperSession
-    );
+    event maxProposalperSessionModification(uint16 oldMaxProposalperSession, uint16 newMaxProposalperSession);
 
     /** @notice This event is emitted when a bad call is received.
         @param sessionID The new session ID.*/
-    event sessionCreated(uint sessionID);
+    event sessionCreated(address adminAddress, uint sessionID);
 
     /** @notice This event is emitted when admin session is transferred.
         @param sessionID The session ID.
         @param oldAdmin The old session admin.
         @param newAdmin The new session admin.*/
-    event sessionAdminTransferred(
-        uint sessionID,
-        address oldAdmin,
-        address newAdmin
-    );
+    event sessionAdminTransferred(uint sessionID, address oldAdmin, address newAdmin);
 
     /** @notice This event is emitted when a voter is registered.
         @param voterAddress The voter adress.
@@ -172,11 +159,7 @@ contract MyLittleDAO is Ownable {
         @param previousStatus The session previous workflowstatus.
         @param newStatus The session new workflowstatus.
         @param sessionID The session ID.*/
-    event WorkflowStatusChange(
-        WorkflowStatus previousStatus,
-        WorkflowStatus newStatus,
-        uint64 sessionID
-    );
+    event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus, uint64 sessionID);
 
     /** @notice This event is emitted when a proposal is registrered.
         @param proposalId The registered proposal ID.
@@ -199,11 +182,7 @@ contract MyLittleDAO is Ownable {
         @param amount The amount withdrawed.
         @param withdrawer The withdrawer address.
         @param sessionID The session ID.*/
-    event WithdrawalSubmitted(
-        uint amount,
-        address withdrawer,
-        uint64 sessionID
-    );
+    event WithdrawalSubmitted(uint amount, address withdrawer, uint64 sessionID);
 
     /** @notice This event is emitted a setting is modified by vote.
         @param setting The setting modified.
@@ -434,7 +413,7 @@ contract MyLittleDAO is Ownable {
             emit WithdrawerRegistered(msg.sender, sessions);
         }
 
-        emit sessionCreated(sessions);
+        emit sessionCreated(msg.sender,sessions);
     }
 
     /** @notice Change vote session admin.
