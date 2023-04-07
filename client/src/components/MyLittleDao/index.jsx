@@ -1,5 +1,5 @@
 import useEth from "../../contexts/EthContext/useEth";
-import NoticeNoArtifact from "../Demo/NoticeNoArtifact";
+import NoticeNoArtifact from ".//NoticeNoArtifact";
 import NoticeWrongNetwork from "./NoticeWrongNetwork";
 
 function MyLittleDAO() {
