@@ -1,6 +1,6 @@
 import { EthProvider } from "./contexts/EthContext";
 import MyLittleDao from "./components/MyLittleDao";
-import Footer from "./components/Footer";
+import Footer from "./components/Footer/Footer";
 
 function App() {
   return (
