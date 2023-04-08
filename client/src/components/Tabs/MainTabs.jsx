@@ -10,6 +10,7 @@ function MainTabs() {
 
     const [sessionSelected, setSessionSelected] = useState("");
     const [addressToWhitelistLog, setAddressToWhitelistLog] = useState("");
+    const [workflowStatusLog, setWorkflowStatusLog] = useState("");
     const { state: { contract, accounts, networkID } } = useEth();
 
     //Initialize variables 
@@ -19,12 +20,20 @@ function MainTabs() {
         })();
     }, [contract, accounts,networkID ])
 
+    //Initialize logs 
+    useEffect(() => {
+        (async function () {
+            setWorkflowStatusLog("");
+            setAddressToWhitelistLog("");
+        })();
+    }, [sessionSelected ])
+
 
     const status =
         <>
-            <AdminSessionInformations sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} />
+            <AdminSessionInformations sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} workflowStatusLog={workflowStatusLog}/>
             <SessionWhitelist sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} setAddressToWhitelistLog={setAddressToWhitelistLog} />
-            <AdminSessionStatus sessionSelected={sessionSelected} />
+            <AdminSessionStatus sessionSelected={sessionSelected} workflowStatusLog={workflowStatusLog} setWorkflowStatusLog={setWorkflowStatusLog} />
         </>
 
 

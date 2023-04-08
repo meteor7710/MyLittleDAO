@@ -2,7 +2,7 @@ import { Box, Heading, Text, Alert, AlertIcon } from '@chakra-ui/react';
 import { useState, useEffect } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
-function AdminSessionInformations({ sessionSelected, addressToWhitelistLog }) {
+function AdminSessionInformations({ sessionSelected, addressToWhitelistLog,workflowStatusLog }) {
 
     const { state: { contract, accounts } } = useEth();
     const [adminSessionInfos, setAdminSessionInfos] = useState("");
@@ -58,7 +58,7 @@ function AdminSessionInformations({ sessionSelected, addressToWhitelistLog }) {
                         <Text my="5px"> Session Title: {session.title}</Text>
                         <Text my="5px"> Vote Type : {sessionVoteType}</Text>
                         <Text my="5px"> Session Voters number : {session.sessionVoters}</Text>
-                        <Text my="5px"> Session Voters number : {session.sessionProposals}</Text>
+                        <Text my="5px"> Session Proposals number : {session.sessionProposals}</Text>
                         <Alert my="10px" width="auto" status='info' borderRadius="25px"> <AlertIcon />Current workflow status : {sessionWorkflowStatus}</Alert>
                     </>;
                 setAdminSessionInfos(sessionsInfos);
@@ -69,7 +69,7 @@ function AdminSessionInformations({ sessionSelected, addressToWhitelistLog }) {
             }
         })();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [sessionSelected,addressToWhitelistLog])
+    }, [sessionSelected,addressToWhitelistLog,workflowStatusLog])
 
     return (
         <section className="adminSessionInformations">

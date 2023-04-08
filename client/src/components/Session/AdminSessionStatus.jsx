@@ -2,11 +2,11 @@ import { useDisclosure, Heading, Box, TableContainer, TableCaption, Thead, Table
 import useEth from "../../contexts/EthContext/useEth";
 import { useState, useEffect } from "react";
 
-function AdminSessionStatus({ sessionSelected }) {
+function AdminSessionStatus({ sessionSelected,workflowStatusLog,setWorkflowStatusLog }) {
 
     const { state: { contract, accounts, creationBlock } } = useEth();
     const [workflowEvents, setWorkflowEvents] = useState();
-    const [workflowStatusLog, setWorkflowStatusLog] = useState("");
+    
     const [errorMsg, setErrorMsg] = useState("");
     const { isOpen, onOpen, onClose } = useDisclosure();
 
