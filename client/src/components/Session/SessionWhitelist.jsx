@@ -8,8 +8,7 @@ import {
 
 function SessionWhitelist({ sessionSelected, addressToWhitelistLog, setAddressToWhitelistLog }) {
 
-    const [addressToWhitelist, setAddressToWhitelist] = useState("");
-    
+    const [addressToWhitelist, setAddressToWhitelist] = useState(""); 
     const [registeredAddresses, setRegisteredAddresses] = useState();
     const [errorMsg, setErrorMsg] = useState("");
     const { state: { contract, accounts, web3, creationBlock } } = useEth();
@@ -104,8 +103,7 @@ function SessionWhitelist({ sessionSelected, addressToWhitelistLog, setAddressTo
                     <Tbody>{registeredAddresses}</Tbody>
                 </Table>
             </TableContainer>
-            </Box>
-            
+            </Box>           
             <AlertDialog isOpen={isOpen} onClose={onClose} >
                 <AlertDialogOverlay>
                     <AlertDialogContent>

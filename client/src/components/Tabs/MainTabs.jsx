@@ -4,6 +4,7 @@ import AdminSession from '../Session/AdminSessions';
 import AdminSessionInformations from '../Session/AdminSessionInformations';
 import AdminSessionStatus from '../Session/AdminSessionStatus';
 import SessionWhitelist from '../Session/SessionWhitelist';
+import AdminSessionTransfer from '../Admin/AdminSessionTransfer';
 import { useState, useEffect } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 function MainTabs() {
@@ -12,6 +13,7 @@ function MainTabs() {
     const [addressToWhitelistLog, setAddressToWhitelistLog] = useState("");
     const [workflowStatusLog, setWorkflowStatusLog] = useState("");
     const [sessionCreationLog, setSessionCreationLog] = useState("");
+    const [newAdminAddressLog, setNewAdminAddressLog] = useState("");
     const { state: { contract, accounts, networkID } } = useEth();
 
     //Initialize variables 
@@ -35,6 +37,7 @@ function MainTabs() {
             <AdminSessionInformations sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} workflowStatusLog={workflowStatusLog}/>
             <SessionWhitelist sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} setAddressToWhitelistLog={setAddressToWhitelistLog} />
             <AdminSessionStatus sessionSelected={sessionSelected} workflowStatusLog={workflowStatusLog} setWorkflowStatusLog={setWorkflowStatusLog} />
+            <AdminSessionTransfer sessionSelected={sessionSelected} setNewAdminAddressLog={setNewAdminAddressLog} setSessionSelected={setSessionSelected} />
         </>
 
 
@@ -51,7 +54,7 @@ function MainTabs() {
                         <SessionCreation sessionCreationLog={sessionCreationLog} setSessionCreationLog={setSessionCreationLog} />
                     </TabPanel>
                     <TabPanel>
-                        <AdminSession sessionSelected={sessionSelected} setSessionSelected={setSessionSelected} sessionCreationLog={sessionCreationLog} />
+                        <AdminSession sessionSelected={sessionSelected} setSessionSelected={setSessionSelected} sessionCreationLog={sessionCreationLog} newAdminAddressLog={newAdminAddressLog} setNewAdminAddressLog={setNewAdminAddressLog}/>
                         {(sessionSelected !== "") ? (admin) :
                             <Text></Text>}
 

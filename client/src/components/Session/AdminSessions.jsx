@@ -1,8 +1,8 @@
-import { Box, Heading, FormControl, FormLabel, Select } from '@chakra-ui/react';
+import { Box, Heading, FormControl, FormLabel, Select, Alert, AlertIcon, Text } from '@chakra-ui/react';
 import { useEffect, useState } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
-function AdminSessions({sessionSelected, setSessionSelected,sessionCreationLog}) {
+function AdminSessions({sessionSelected, setSessionSelected,sessionCreationLog,newAdminAddressLog,setNewAdminAddressLog}) {
 
     const { state: { contract, accounts, creationBlock,networkID } } = useEth();
     const [adminSessionList, setadminSessionList] = useState([]);
@@ -10,6 +10,7 @@ function AdminSessions({sessionSelected, setSessionSelected,sessionCreationLog})
     //Manage Session selected
     const handleSelectedSession = e => {
         setSessionSelected(e.target.value);
+        if (newAdminAddressLog !== "")setNewAdminAddressLog("");
     };
 
     //show session create where uses is admin
@@ -58,7 +59,7 @@ function AdminSessions({sessionSelected, setSessionSelected,sessionCreationLog})
 
             setadminSessionList(adminSessionsRendered);
         })();
-    }, [contract, accounts, networkID, creationBlock,sessionCreationLog])
+    }, [contract, accounts, networkID, creationBlock,sessionCreationLog,newAdminAddressLog])
 
 
     return (
@@ -72,6 +73,10 @@ function AdminSessions({sessionSelected, setSessionSelected,sessionCreationLog})
                             {adminSessionList}
                         </Select>
                     </FormControl>
+                </Box>
+                <Box>
+                    {(newAdminAddressLog !== "") ? (<Alert width="auto" status='success' borderRadius='25px'> <AlertIcon /> {newAdminAddressLog} </Alert>) :
+                        <Text></Text>}
                 </Box>
             </Box>
         </section>
