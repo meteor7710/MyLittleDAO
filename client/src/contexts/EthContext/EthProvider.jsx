@@ -16,16 +16,21 @@ function EthProvider({ children }) {
         const accounts = await web3.eth.requestAccounts();
         const networkID = await web3.eth.net.getId();
         const { abi } = artifact;
-        let address, contract;
+        let address, contract,owner, creationBlock;
         try {
           address = artifact.networks[networkID].address;
           contract = new web3.eth.Contract(abi, address);
+          //Add owner state to filter views
+          owner = await contract.methods.owner().call();
+          //Add contract creation block to reduce event queries
+          const deployTx = await web3.eth.getTransaction(artifact.networks[networkID].transactionHash);
+          creationBlock = deployTx.blockNumber;
         } catch (err) {
           console.error(err);
         }
         dispatch({
           type: actions.init,
-          data: { artifact, web3, accounts, networkID, contract }
+          data: { artifact, web3, accounts, networkID, contract, owner, creationBlock  }
         });
         setAccount(accounts[0]);
       }
