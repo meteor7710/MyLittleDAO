@@ -24,10 +24,7 @@ function AdminSessions({sessionSelected, setSessionSelected}) {
             };
 
             //Create Session admin list from events
-            const sessionsEvents = await contract.getPastEvents("sessionCreated", { fromBlock: creationBlock, toBlock: "latest" });
-
-            //Create Session admin list from events
-            const sessionsTransferredEvents = await contract.getPastEvents("sessionAdminTransferred", { fromBlock: creationBlock, toBlock: "latest" });
+            const sessionsEvents = await contract.getPastEvents("sessionCreated", {filter: {adminAddress: accounts[0] }, fromBlock: creationBlock, toBlock: "latest" });
 
             let adminSessions = [];
 
@@ -35,12 +32,13 @@ function AdminSessions({sessionSelected, setSessionSelected}) {
 
                 //validate adminship has not been transferred to another
                 let sessionAdmin = sessionsEvents[i].returnValues.adminAddress
-                for (let j = 0; j < sessionsTransferredEvents.length; j++) {
 
-                    if (sessionsTransferredEvents[j].returnValues.sessionID === sessionsEvents[i].returnValues.sessionID) {
-                        sessionAdmin = sessionsTransferredEvents[j].returnValues.newAdmin;
-                    }
+                //Create Session admin transfer list from events and apply last admin
+                const sessionsTransferredEvents = await contract.getPastEvents("sessionAdminTransferred", { filter: {sessionID: sessionsEvents[i].returnValues.sessionID },fromBlock: creationBlock, toBlock: "latest" });
+                if (sessionsTransferredEvents.length>0) {
+                    sessionAdmin = sessionsTransferredEvents[sessionsTransferredEvents.length-1].returnValues.newAdmin;
                 }
+
 
                 if (sessionAdmin === accounts[0]) {
 

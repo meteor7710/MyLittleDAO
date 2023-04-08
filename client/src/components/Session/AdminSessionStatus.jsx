@@ -13,7 +13,7 @@ function AdminSessionStatus({ sessionSelected }) {
     //show status event history
     useEffect(() => {
         (async function () {
-            const workflowStatusEvents = await contract.getPastEvents('WorkflowStatusChange', { fromBlock: creationBlock, toBlock: 'latest' });
+            const workflowStatusEvents = await contract.getPastEvents('WorkflowStatusChange', {filter: {sessionID: sessionSelected }, fromBlock: creationBlock, toBlock: 'latest' });
 
             const workflowChanges = [];
 
