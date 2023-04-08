@@ -1,4 +1,4 @@
-import { Box, Heading, Text } from '@chakra-ui/react';
+import { Box, Heading, Text, Alert, AlertIcon } from '@chakra-ui/react';
 import { useEffect, useState } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
@@ -56,9 +56,9 @@ function AdminSessionInformations({ sessionSelected }) {
                         <Text my="5px"> Session ID : {sessionSelected}</Text>
                         <Text my="5px"> Session Title: {session.title}</Text>
                         <Text my="5px"> Vote Type : {sessionVoteType}</Text>
-                        <Text my="5px"> Workflow Status : {sessionWorkflowStatus}</Text>
                         <Text my="5px"> Session Voters number : {session.sessionVoters}</Text>
                         <Text my="5px"> Session Voters number : {session.sessionProposals}</Text>
+                        <Alert my="10px" width="auto" status='info' borderRadius="25px"> <AlertIcon />Current workflow status : {sessionWorkflowStatus}</Alert>
                     </>;
                 setadminSessionInfos(sessionsInfos);
             }
