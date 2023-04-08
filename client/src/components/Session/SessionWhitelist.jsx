@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import useEth from "../../contexts/EthContext/useEth";
-import { Heading, Button, FormControl, FormLabel, Input, Text, Box, Alert, AlertIcon, AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogContent, AlertDialogOverlay, useDisclosure, Flex, Spacer, Center } from '@chakra-ui/react';
+import {
+    Heading, Button, FormControl, FormLabel, Input, Text, Box, Alert, AlertIcon, AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogContent, AlertDialogOverlay, useDisclosure, Flex, Spacer, Center,
+    TableContainer, Table, TableCaption, Thead, Tr, Th, Tbody, Td
+} from '@chakra-ui/react';
 
 
-function SessionWhitelist({ sessionSelected }) {
+function SessionWhitelist({ sessionSelected, addressToWhitelistLog, setAddressToWhitelistLog }) {
 
     const [addressToWhitelist, setAddressToWhitelist] = useState("");
-    const [addressToWhitelistLog, setAddressToWhitelistLog] = useState("");
+    
+    const [registeredAddresses, setRegisteredAddresses] = useState();
     const [errorMsg, setErrorMsg] = useState("");
     const { state: { contract, accounts, web3, creationBlock } } = useEth();
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -18,12 +22,18 @@ function SessionWhitelist({ sessionSelected }) {
 
     //Add address to whitelist
     const addAddressToWhitelist = async () => {
-        if (!web3.utils.isAddress(addressToWhitelist)) { setErrorMsg("Address invalid"); onOpen(); return; }
+        if (!web3.utils.isAddress(addressToWhitelist)) { setErrorMsg("Address invalid"); onOpen(); setAddressToWhitelist(""); return; }
 
-        const voterRegisteredEvents = await contract.getPastEvents('VoterRegistered', { filter: { voterAddress: addressToWhitelist, sessionID: sessionSelected },fromBlock: creationBlock, toBlock: 'latest' });
-        const voterUnregisteredEvents = await contract.getPastEvents('VoterUnregistered', { filter: { voterAddress: addressToWhitelist, sessionID: sessionSelected },fromBlock: creationBlock, toBlock: 'latest' });
+        //Validation address already submit
+        const voterRegisteredEvents = await contract.getPastEvents('VoterRegistered', { filter: { voterAddress: addressToWhitelist, sessionID: sessionSelected }, fromBlock: creationBlock, toBlock: 'latest' });
+        const voterUnregisteredEvents = await contract.getPastEvents('VoterUnregistered', { filter: { voterAddress: addressToWhitelist, sessionID: sessionSelected }, fromBlock: creationBlock, toBlock: 'latest' });
 
-        if (voterRegisteredEvents.length !== voterUnregisteredEvents.length) { setErrorMsg("Voter already whitelisted"); onOpen(); setAddressToWhitelist("");return; }
+        if (voterRegisteredEvents.length !== voterUnregisteredEvents.length) { setErrorMsg("Voter already whitelisted"); onOpen(); setAddressToWhitelist(""); return; }
+
+        //Validation max voter not reach
+        const maxVoterperSession = await contract.methods.maxVoterperSession().call({ from: accounts[0] });
+        if ( (voterRegisteredEvents.length - voterUnregisteredEvents.length) >= maxVoterperSession ) { setErrorMsg("Max voter per session reached"); onOpen(); setAddressToWhitelist(""); return; }
+
 
         if (await contract.methods.addVoter(addressToWhitelist, sessionSelected).call({ from: accounts[0] })) {
             const addAddressTx = await contract.methods.addVoter(addressToWhitelist, sessionSelected).send({ from: accounts[0] });
@@ -32,6 +42,32 @@ function SessionWhitelist({ sessionSelected }) {
             setAddressToWhitelist("");
         }
     };
+
+    //Build table of  whitelisted addresses
+    useEffect(() => {
+        (async function () {
+            const voterRegisteredEvents = await contract.getPastEvents('VoterRegistered', { filter: {sessionID: sessionSelected },fromBlock: creationBlock, toBlock: 'latest' });
+            const voterAddresses = [];
+
+            for (let i = 0; i < voterRegisteredEvents.length; i++) {
+                voterAddresses.push(
+                    {
+                        blockNumber: voterRegisteredEvents[i].blockNumber,
+                        voterAddress: voterRegisteredEvents[i].returnValues.voterAddress,
+                    });
+            };
+
+            //Build table body of registered address
+            const listAdresses = voterAddresses.map((add, index) =>
+                <Tr key={"add" + index}>
+                    <Td>{add.blockNumber}</Td>
+                    <Td>{add.voterAddress}</Td>
+                </Tr>
+            );
+
+            setRegisteredAddresses(listAdresses);
+        })();
+    }, [contract, accounts, creationBlock,sessionSelected, addressToWhitelistLog])
 
     return (
         <section className="sessionWhitelist">
@@ -56,7 +92,20 @@ function SessionWhitelist({ sessionSelected }) {
                     {(addressToWhitelistLog !== "") ? (<Alert width="auto" status='success' borderRadius='25px'> <AlertIcon /> {addressToWhitelistLog} </Alert>) :
                         <Text></Text>}
                 </Box>
+                <TableContainer my="10px" maxHeight="380px" overflowY="auto">
+                <Table>
+                    <TableCaption>Whitelisted adresses</TableCaption>
+                    <Thead>
+                        <Tr>
+                            <Th>Registration Block Number</Th>
+                            <Th>Address</Th>
+                        </Tr>
+                    </Thead>
+                    <Tbody>{registeredAddresses}</Tbody>
+                </Table>
+            </TableContainer>
             </Box>
+            
             <AlertDialog isOpen={isOpen} onClose={onClose} >
                 <AlertDialogOverlay>
                     <AlertDialogContent>

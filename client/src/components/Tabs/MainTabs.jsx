@@ -9,6 +9,7 @@ import useEth from "../../contexts/EthContext/useEth";
 function MainTabs() {
 
     const [sessionSelected, setSessionSelected] = useState("");
+    const [addressToWhitelistLog, setAddressToWhitelistLog] = useState("");
     const { state: { contract, accounts, networkID } } = useEth();
 
     //Initialize variables 
@@ -21,8 +22,8 @@ function MainTabs() {
 
     const status =
         <>
-            <AdminSessionInformations sessionSelected={sessionSelected} />
-            <SessionWhitelist sessionSelected={sessionSelected} />
+            <AdminSessionInformations sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} />
+            <SessionWhitelist sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} setAddressToWhitelistLog={setAddressToWhitelistLog} />
             <AdminSessionStatus sessionSelected={sessionSelected} />
         </>
 
