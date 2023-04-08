@@ -66,7 +66,7 @@ function AdminSessions() {
 
 
     return (
-        <section className="sessionCreation">
+        <section className="adminSessions">
             <Box my="10px" p="25px" border="1px" borderRadius="25px" borderColor="gray.200">
                 <Heading as="h3" size="lg">Admin role Session List</Heading>
                 <Box m="25px" >
