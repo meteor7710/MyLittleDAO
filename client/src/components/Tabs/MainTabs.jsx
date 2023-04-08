@@ -3,9 +3,9 @@ import SessionCreation from "../Session/SessionCreation"
 import AdminSession from '../Session/AdminSessions';
 import AdminSessionInformations from '../Session/AdminSessionInformations';
 import AdminSessionStatus from '../Session/AdminSessionStatus';
+import SessionWhitelist from '../Session/SessionWhitelist';
 import { useState, useEffect } from "react";
 import useEth from "../../contexts/EthContext/useEth";
-
 function MainTabs() {
 
     const [sessionSelected, setSessionSelected] = useState("");
@@ -22,6 +22,7 @@ function MainTabs() {
     const status =
         <>
             <AdminSessionInformations sessionSelected={sessionSelected} />
+            <SessionWhitelist sessionSelected={sessionSelected} />
             <AdminSessionStatus sessionSelected={sessionSelected} />
         </>
 
