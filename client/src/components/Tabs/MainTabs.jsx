@@ -1,9 +1,9 @@
 import { Box, Tabs, TabList, Tab, TabPanels, TabPanel, Text } from '@chakra-ui/react';
 import SessionCreation from "../Session/SessionCreation"
-import AdminSession from '../Session/AdminSessions';
-import AdminSessionInformations from '../Session/AdminSessionInformations';
-import AdminSessionStatus from '../Session/AdminSessionStatus';
-import SessionWhitelist from '../Session/SessionWhitelist';
+import AdminSession from '../Admin/AdminSessions';
+import AdminSessionInformations from '../Admin/AdminSessionInformations';
+import AdminSessionStatus from '../Admin/AdminSessionStatus';
+import AdminSessionWhitelist from '../Admin/AdminSessionWhitelist';
 import AdminSessionTransfer from '../Admin/AdminSessionTransfer';
 import { useState, useEffect } from "react";
 import useEth from "../../contexts/EthContext/useEth";
@@ -35,7 +35,7 @@ function MainTabs() {
     const admin =
         <>
             <AdminSessionInformations sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} workflowStatusLog={workflowStatusLog}/>
-            <SessionWhitelist sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} setAddressToWhitelistLog={setAddressToWhitelistLog} />
+            <AdminSessionWhitelist sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} setAddressToWhitelistLog={setAddressToWhitelistLog} />
             <AdminSessionStatus sessionSelected={sessionSelected} workflowStatusLog={workflowStatusLog} setWorkflowStatusLog={setWorkflowStatusLog} />
             <AdminSessionTransfer sessionSelected={sessionSelected} setNewAdminAddressLog={setNewAdminAddressLog} setSessionSelected={setSessionSelected} />
         </>

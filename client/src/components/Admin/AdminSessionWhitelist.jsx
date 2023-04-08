@@ -6,7 +6,7 @@ import {
 } from '@chakra-ui/react';
 
 
-function SessionWhitelist({ sessionSelected, addressToWhitelistLog, setAddressToWhitelistLog }) {
+function AdminSessionWhitelist({ sessionSelected, addressToWhitelistLog, setAddressToWhitelistLog }) {
 
     const [addressToWhitelist, setAddressToWhitelist] = useState(""); 
     const [registeredAddresses, setRegisteredAddresses] = useState();
@@ -120,4 +120,4 @@ function SessionWhitelist({ sessionSelected, addressToWhitelistLog, setAddressTo
     );
 }
 
-export default SessionWhitelist;
+export default AdminSessionWhitelist;
