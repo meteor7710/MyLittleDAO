@@ -1,5 +1,5 @@
 import { Heading, Box, FormLabel, FormControl, Text, Button, Input, Select, useDisclosure, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogBody, Alert, AlertIcon, AlertDialogFooter } from "@chakra-ui/react";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
 function SessionCreation() {
@@ -9,6 +9,14 @@ function SessionCreation() {
     const [sessionVoteTypeLog, setSessionVoteTypeLog] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
     const { isOpen, onOpen, onClose } = useDisclosure();
+
+
+    useEffect(() => {
+        (async function () {
+            setSessionVoteTypeLog("");
+
+        })();
+      }, [accounts])
 
 
     //Manage Title input
