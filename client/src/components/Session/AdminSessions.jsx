@@ -4,7 +4,7 @@ import useEth from "../../contexts/EthContext/useEth";
 
 function AdminSessions({sessionSelected, setSessionSelected}) {
 
-    const { state: { contract, accounts, creationBlock } } = useEth();
+    const { state: { contract, accounts, creationBlock,networkID } } = useEth();
     const [adminSessionList, setadminSessionList] = useState([]);
 
     //Manage Session selected
@@ -60,7 +60,7 @@ function AdminSessions({sessionSelected, setSessionSelected}) {
 
             setadminSessionList(adminSessionsRendered);
         })();
-    }, [contract, accounts, creationBlock])
+    }, [contract, accounts, networkID, creationBlock])
 
 
     return (

@@ -1,11 +1,12 @@
 import { Box, Heading, Text, Alert, AlertIcon } from '@chakra-ui/react';
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
-function AdminSessionInformations({ sessionSelected }) {
+function AdminSessionInformations({ sessionSelected}) {
 
     const { state: { contract, accounts } } = useEth();
-    const [adminSessionInfos, setadminSessionInfos] = useState("");
+    const [adminSessionInfos, setAdminSessionInfos] = useState("");
+    
 
     //show session create where uses is admin
     useEffect(() => {
@@ -60,10 +61,15 @@ function AdminSessionInformations({ sessionSelected }) {
                         <Text my="5px"> Session Voters number : {session.sessionProposals}</Text>
                         <Alert my="10px" width="auto" status='info' borderRadius="25px"> <AlertIcon />Current workflow status : {sessionWorkflowStatus}</Alert>
                     </>;
-                setadminSessionInfos(sessionsInfos);
+                setAdminSessionInfos(sessionsInfos);
+            }
+            else
+            {
+                setAdminSessionInfos("");
             }
         })();
-    }, [contract, accounts, sessionSelected])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [sessionSelected,setAdminSessionInfos])
 
     return (
         <section className="adminSessionInformations">

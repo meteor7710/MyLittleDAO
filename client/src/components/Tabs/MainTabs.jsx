@@ -3,17 +3,27 @@ import SessionCreation from "../Session/SessionCreation"
 import AdminSession from '../Session/AdminSessions';
 import AdminSessionInformations from '../Session/AdminSessionInformations';
 import AdminSessionStatus from '../Session/AdminSessionStatus';
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import useEth from "../../contexts/EthContext/useEth";
 
 function MainTabs() {
 
     const [sessionSelected, setSessionSelected] = useState("");
+    const { state: { contract, accounts, networkID } } = useEth();
+
+    //Initialize variables 
+    useEffect(() => {
+        (async function () {
+            setSessionSelected("");
+        })();
+    }, [contract, accounts,networkID ])
+
 
     const status =
-    <>
-        <AdminSessionInformations sessionSelected={sessionSelected} />
-        <AdminSessionStatus sessionSelected={sessionSelected}/>
-    </>
+        <>
+            <AdminSessionInformations sessionSelected={sessionSelected} />
+            <AdminSessionStatus sessionSelected={sessionSelected} />
+        </>
 
 
     return (
@@ -32,7 +42,7 @@ function MainTabs() {
                         <AdminSession sessionSelected={sessionSelected} setSessionSelected={setSessionSelected} />
                         {(sessionSelected !== "") ? (status) :
                             <Text></Text>}
-                        
+
                     </TabPanel>
                     <TabPanel>
                         <p>three!</p>

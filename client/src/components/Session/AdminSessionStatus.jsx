@@ -37,7 +37,7 @@ function AdminSessionStatus({ sessionSelected }) {
 
             setWorkflowEvents(listWorkflowChanges);
         })();
-    }, [contract, creationBlock,workflowStatusLog])
+    }, [contract,sessionSelected, creationBlock, workflowStatusLog])
 
     //Change workflowstatus to next status
     const changeStatus = async () => {
