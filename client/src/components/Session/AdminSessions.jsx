@@ -2,12 +2,10 @@ import { Box, Heading, FormControl, FormLabel, Select } from '@chakra-ui/react';
 import { useEffect, useState } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
-function AdminSessions() {
+function AdminSessions({sessionSelected, setSessionSelected}) {
 
     const { state: { contract, accounts, creationBlock } } = useEth();
-    const [sessionSelected, setSessionSelected] = useState("");
     const [adminSessionList, setadminSessionList] = useState([]);
-
 
     //Manage Session selected
     const handleSelectedSession = e => {
@@ -57,7 +55,7 @@ function AdminSessions() {
 
             //Manage admin list selection
             const adminSessionsRendered = adminSessions.map((session, index) =>
-                <option key={"session" + index}>Session {session.id} - {session.title}</option>
+                <option key={"session" + index} value={session.id}>Session {session.id} - {session.title}</option>
             );
 
             setadminSessionList(adminSessionsRendered);
