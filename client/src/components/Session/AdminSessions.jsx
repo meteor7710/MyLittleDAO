@@ -2,7 +2,7 @@ import { Box, Heading, FormControl, FormLabel, Select } from '@chakra-ui/react';
 import { useEffect, useState } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
-function AdminSessions({sessionSelected, setSessionSelected}) {
+function AdminSessions({sessionSelected, setSessionSelected,sessionCreationLog}) {
 
     const { state: { contract, accounts, creationBlock,networkID } } = useEth();
     const [adminSessionList, setadminSessionList] = useState([]);
@@ -58,7 +58,7 @@ function AdminSessions({sessionSelected, setSessionSelected}) {
 
             setadminSessionList(adminSessionsRendered);
         })();
-    }, [contract, accounts, networkID, creationBlock])
+    }, [contract, accounts, networkID, creationBlock,sessionCreationLog])
 
 
     return (

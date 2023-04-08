@@ -11,6 +11,7 @@ function MainTabs() {
     const [sessionSelected, setSessionSelected] = useState("");
     const [addressToWhitelistLog, setAddressToWhitelistLog] = useState("");
     const [workflowStatusLog, setWorkflowStatusLog] = useState("");
+    const [sessionCreationLog, setSessionCreationLog] = useState("");
     const { state: { contract, accounts, networkID } } = useEth();
 
     //Initialize variables 
@@ -29,7 +30,7 @@ function MainTabs() {
     }, [sessionSelected ])
 
 
-    const status =
+    const admin =
         <>
             <AdminSessionInformations sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} workflowStatusLog={workflowStatusLog}/>
             <SessionWhitelist sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} setAddressToWhitelistLog={setAddressToWhitelistLog} />
@@ -47,11 +48,11 @@ function MainTabs() {
                 </TabList>
                 <TabPanels>
                     <TabPanel>
-                        <SessionCreation />
+                        <SessionCreation sessionCreationLog={sessionCreationLog} setSessionCreationLog={setSessionCreationLog} />
                     </TabPanel>
                     <TabPanel>
-                        <AdminSession sessionSelected={sessionSelected} setSessionSelected={setSessionSelected} />
-                        {(sessionSelected !== "") ? (status) :
+                        <AdminSession sessionSelected={sessionSelected} setSessionSelected={setSessionSelected} sessionCreationLog={sessionCreationLog} />
+                        {(sessionSelected !== "") ? (admin) :
                             <Text></Text>}
 
                     </TabPanel>

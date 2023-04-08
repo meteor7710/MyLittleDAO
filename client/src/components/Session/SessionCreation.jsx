@@ -2,21 +2,20 @@ import { Heading, Box, FormLabel, FormControl, Text, Button, Input, Select, useD
 import { useState,useEffect } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
-function SessionCreation() {
+function SessionCreation({sessionCreationLog, setSessionCreationLog}) {
     const { state: { contract, accounts } } = useEth();
     const [sessionTitle, setSessionTitle] = useState("");
     const [sessionVoteType, setSessionVoteType] = useState("");
-    const [sessionVoteTypeLog, setSessionVoteTypeLog] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
     const { isOpen, onOpen, onClose } = useDisclosure();
 
 
     useEffect(() => {
         (async function () {
-            setSessionVoteTypeLog("");
+            setSessionCreationLog("");
 
         })();
-      }, [accounts])
+      }, [accounts,setSessionCreationLog])
 
 
     //Manage Title input
@@ -53,7 +52,7 @@ function SessionCreation() {
         if (await contract.methods.createnewVoteSession(sessionTitle, sessionVoteTypeInt).call({ from: accounts[0] })) {
             const addSessionTx = await contract.methods.createnewVoteSession(sessionTitle, sessionVoteTypeInt).send({ from: accounts[0] });
             const addedAddressToWhitelist = addSessionTx.events.sessionCreated.returnValues.sessionID;
-            setSessionVoteTypeLog("Session " + addedAddressToWhitelist + " " + sessionTitle + " created");
+            setSessionCreationLog("Session " + addedAddressToWhitelist + " " + sessionTitle + " created");
         }
 
         setSessionTitle("");
@@ -77,7 +76,7 @@ function SessionCreation() {
                     </FormControl>
                 </Box>
                 <Box>
-                    {(sessionVoteTypeLog !== "") ? (<Alert width="auto" status='success' borderRadius='25px'> <AlertIcon /> {sessionVoteTypeLog} </Alert>) :
+                    {(sessionCreationLog !== "") ? (<Alert width="auto" status='success' borderRadius='25px'> <AlertIcon /> {sessionCreationLog} </Alert>) :
                         <Text></Text>}
                 </Box>
             </Box>
