@@ -132,23 +132,23 @@ contract MyLittleDAO is Ownable {
 
     /** @notice This event is emitted when a bad call is received.
         @param sessionID The new session ID.*/
-    event sessionCreated(address adminAddress, uint sessionID);
+    event sessionCreated(address indexed adminAddress, uint sessionID);
 
     /** @notice This event is emitted when admin session is transferred.
         @param sessionID The session ID.
         @param oldAdmin The old session admin.
         @param newAdmin The new session admin.*/
-    event sessionAdminTransferred(uint sessionID, address oldAdmin, address newAdmin);
+    event sessionAdminTransferred(uint indexed sessionID, address oldAdmin, address newAdmin);
 
     /** @notice This event is emitted when a voter is registered.
         @param voterAddress The voter adress.
         @param sessionID The session ID.*/
-    event VoterRegistered(address voterAddress, uint64 sessionID);
+    event VoterRegistered(address indexed voterAddress, uint64 indexed sessionID);
 
     /** @notice This event is emitted when a voter is removed.
         @param voterAddress The voter adress.
         @param sessionID The session ID.*/
-    event VoterUnregistered(address voterAddress, uint64 sessionID);
+    event VoterUnregistered(address indexed voterAddress, uint64 indexed sessionID);
 
     /** @notice This event is emitted when a withdrawer is registered.
         @param withdrawerAddress The voter adress.
@@ -159,7 +159,7 @@ contract MyLittleDAO is Ownable {
         @param previousStatus The session previous workflowstatus.
         @param newStatus The session new workflowstatus.
         @param sessionID The session ID.*/
-    event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus, uint64 sessionID);
+    event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus, uint64 indexed sessionID);
 
     /** @notice This event is emitted when a proposal is registrered.
         @param proposalId The registered proposal ID.
