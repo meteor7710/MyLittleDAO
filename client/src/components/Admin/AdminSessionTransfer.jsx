@@ -1,14 +1,13 @@
-import { useDisclosure,Box, Heading, FormControl,Flex,Spacer,Input,Button,Center,FormLabel,AlertDialog,AlertDialogOverlay,AlertDialogContent,AlertDialogBody,Alert,AlertIcon,AlertDialogFooter } from '@chakra-ui/react';
+import { useDisclosure, Box, Heading, FormControl, Flex, Spacer, Input, Button, Center, FormLabel, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogBody, Alert, AlertIcon, AlertDialogFooter } from '@chakra-ui/react';
 import { useState } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
-function AdminSessionTransfer({sessionSelected,setNewAdminAddressLog,setSessionSelected}) {
+function AdminSessionTransfer({ sessionSelected, setNewAdminAddressLog, setSessionSelected }) {
 
-    const [newAdminAddress, setNewAdminAddress] = useState(""); 
+    const [newAdminAddress, setNewAdminAddress] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { state: { contract, accounts, web3 } } = useEth();
-
 
     //Manage address input
     const handleAdressChange = e => {
@@ -22,7 +21,7 @@ function AdminSessionTransfer({sessionSelected,setNewAdminAddressLog,setSessionS
         if (await contract.methods.transferSessionAdmin(newAdminAddress, sessionSelected).call({ from: accounts[0] })) {
             const transferTx = await contract.methods.transferSessionAdmin(newAdminAddress, sessionSelected).send({ from: accounts[0] });
             const newAdmin = transferTx.events.sessionAdminTransferred.returnValues.newAdmin;
-            setNewAdminAddressLog("Session adminship transfered to " + newAdmin );
+            setNewAdminAddressLog("Session adminship transfered to " + newAdmin);
             setNewAdminAddress("");
             setSessionSelected("");
         }
@@ -47,7 +46,6 @@ function AdminSessionTransfer({sessionSelected,setNewAdminAddressLog,setSessionS
                         </Flex>
                     </FormControl>
                 </Box>
-
             </Box>
             <AlertDialog isOpen={isOpen} onClose={onClose} >
                 <AlertDialogOverlay>
