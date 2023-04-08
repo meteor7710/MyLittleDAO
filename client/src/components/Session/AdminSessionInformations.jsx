@@ -39,13 +39,13 @@ function AdminSessionInformations({ sessionSelected }) {
                     case "2":
                         sessionWorkflowStatus = "Proposals Registration Ended";
                         break;
-                        case "3":
+                    case "3":
                         sessionWorkflowStatus = "Voting Session Started";
                         break;
-                        case "4":
+                    case "4":
                         sessionWorkflowStatus = "Voting Session Ended";
                         break;
-                        case "5":
+                    case "5":
                         sessionWorkflowStatus = "Votes Tallied";
                         break;
                     default:
@@ -53,14 +53,12 @@ function AdminSessionInformations({ sessionSelected }) {
 
                 const sessionsInfos =
                     <>
-                        <Box m="25px" >
-                            <Text my="5px"> Session ID : {sessionSelected}</Text>
-                            <Text my="5px"> Session Title: {session.title}</Text>
-                            <Text my="5px"> Vote Type : {sessionVoteType}</Text>
-                            <Text my="5px"> Workflow Status : {sessionWorkflowStatus}</Text>
-                            <Text my="5px"> Session Voters number : {session.sessionVoters}</Text>
-                            <Text my="5px"> Session Voters number : {session.sessionProposals}</Text>
-                        </Box>
+                        <Text my="5px"> Session ID : {sessionSelected}</Text>
+                        <Text my="5px"> Session Title: {session.title}</Text>
+                        <Text my="5px"> Vote Type : {sessionVoteType}</Text>
+                        <Text my="5px"> Workflow Status : {sessionWorkflowStatus}</Text>
+                        <Text my="5px"> Session Voters number : {session.sessionVoters}</Text>
+                        <Text my="5px"> Session Voters number : {session.sessionProposals}</Text>
                     </>;
                 setadminSessionInfos(sessionsInfos);
             }
@@ -71,7 +69,9 @@ function AdminSessionInformations({ sessionSelected }) {
         <section className="adminSessionInformations">
             <Box my="10px" p="25px" border="1px" borderRadius="25px" borderColor="gray.200">
                 <Heading as="h3" size="lg">Admin Session Informations</Heading>
-                {adminSessionInfos}
+                <Box m="25px" >
+                    {adminSessionInfos}
+                </Box>
             </Box>
         </section>
     );
