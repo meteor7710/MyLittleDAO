@@ -1,10 +1,11 @@
 import { Box, Tabs, TabList, Tab, TabPanels, TabPanel, Text } from '@chakra-ui/react';
 import SessionCreation from "../Session/SessionCreation"
-import AdminSession from '../Admin/AdminSessions';
+import AdminSessions from '../Admin/AdminSessions';
 import AdminSessionInformations from '../Admin/AdminSessionInformations';
 import AdminSessionStatus from '../Admin/AdminSessionStatus';
 import AdminSessionWhitelist from '../Admin/AdminSessionWhitelist';
 import AdminSessionTransfer from '../Admin/AdminSessionTransfer';
+import VoterSessions from '../Voter/VoterSessions';
 import { useState, useEffect } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 function MainTabs() {
@@ -38,7 +39,11 @@ function MainTabs() {
             <AdminSessionWhitelist sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} setAddressToWhitelistLog={setAddressToWhitelistLog} />
             <AdminSessionStatus sessionSelected={sessionSelected} workflowStatusLog={workflowStatusLog} setWorkflowStatusLog={setWorkflowStatusLog} />
             <AdminSessionTransfer sessionSelected={sessionSelected} setNewAdminAddressLog={setNewAdminAddressLog} setSessionSelected={setSessionSelected} />
-        </>
+        </>;
+
+
+
+
 
 
     return (
@@ -54,13 +59,12 @@ function MainTabs() {
                         <SessionCreation sessionCreationLog={sessionCreationLog} setSessionCreationLog={setSessionCreationLog} />
                     </TabPanel>
                     <TabPanel>
-                        <AdminSession sessionSelected={sessionSelected} setSessionSelected={setSessionSelected} sessionCreationLog={sessionCreationLog} newAdminAddressLog={newAdminAddressLog} setNewAdminAddressLog={setNewAdminAddressLog}/>
+                        <AdminSessions sessionSelected={sessionSelected} setSessionSelected={setSessionSelected} sessionCreationLog={sessionCreationLog} newAdminAddressLog={newAdminAddressLog} setNewAdminAddressLog={setNewAdminAddressLog}/>
                         {(sessionSelected !== "") ? (admin) :
                             <Text></Text>}
-
                     </TabPanel>
                     <TabPanel>
-                        <p>three!</p>
+                        <VoterSessions />
                     </TabPanel>
                 </TabPanels>
             </Tabs>
