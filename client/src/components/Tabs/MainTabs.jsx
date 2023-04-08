@@ -1,5 +1,6 @@
 import { Box, Tabs, TabList, Tab, TabPanels,TabPanel } from '@chakra-ui/react';
-import Session from "../Session/SessionCreation"
+import SessionCreation from "../Session/SessionCreation"
+import AdminSession from '../Session/AdminSession';
 
 function MainTabs() {
     return (
@@ -7,15 +8,15 @@ function MainTabs() {
             <Tabs variant='line'>
                 <TabList>
                     <Tab>Create new Sessions</Tab>
-                    <Tab>Admin Sessions</Tab>
-                    <Tab>Vote Sessions</Tab>
+                    <Tab>Admin role Sessions</Tab>
+                    <Tab>Vote role Sessions</Tab>
                 </TabList>
                 <TabPanels>
                     <TabPanel>
-                        <Session />
+                        <SessionCreation />
                     </TabPanel>
                     <TabPanel>
-                        <p>two!</p>
+                        <AdminSession />
                     </TabPanel>
                     <TabPanel>
                         <p>three!</p>
