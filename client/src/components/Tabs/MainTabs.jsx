@@ -2,11 +2,18 @@ import { Box, Tabs, TabList, Tab, TabPanels, TabPanel, Text } from '@chakra-ui/r
 import SessionCreation from "../Session/SessionCreation"
 import AdminSession from '../Session/AdminSessions';
 import AdminSessionInformations from '../Session/AdminSessionInformations';
+import AdminSessionStatus from '../Session/AdminSessionStatus';
 import { useState } from "react";
 
 function MainTabs() {
 
     const [sessionSelected, setSessionSelected] = useState("");
+
+    const status =
+    <>
+        <AdminSessionInformations sessionSelected={sessionSelected} />
+        <AdminSessionStatus sessionSelected={sessionSelected}/>
+    </>
 
 
     return (
@@ -23,8 +30,9 @@ function MainTabs() {
                     </TabPanel>
                     <TabPanel>
                         <AdminSession sessionSelected={sessionSelected} setSessionSelected={setSessionSelected} />
-                        {(sessionSelected !== "") ? (<AdminSessionInformations sessionSelected={sessionSelected} />) :
+                        {(sessionSelected !== "") ? (status) :
                             <Text></Text>}
+                        
                     </TabPanel>
                     <TabPanel>
                         <p>three!</p>
