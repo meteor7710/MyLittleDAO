@@ -3,7 +3,7 @@ import { useState,useEffect } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
 function SessionCreation({sessionCreationLog, setSessionCreationLog}) {
-    const { state: { contract, accounts } } = useEth();
+    const { state: { contract, accounts, creationBlock } } = useEth();
     const [sessionTitle, setSessionTitle] = useState("");
     const [sessionVoteType, setSessionVoteType] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
@@ -30,6 +30,11 @@ function SessionCreation({sessionCreationLog, setSessionCreationLog}) {
 
     //Create a new session
     const createNewSession = async () => {
+
+        //Validation max session not reach
+        const maxVoteSession = await contract.methods.maxVoteSession().call({ from: accounts[0] });
+        const sessionsEvents = await contract.getPastEvents("sessionCreated", { fromBlock: creationBlock, toBlock: "latest" });
+        if ( sessionsEvents.length >= maxVoteSession ) { setErrorMsg("Max session reached"); onOpen(); setSessionTitle("");setSessionVoteType(""); return; }
 
         let sessionVoteTypeInt;
 
