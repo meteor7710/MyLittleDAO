@@ -1,6 +1,6 @@
 import { Box, Tabs, TabList, Tab, TabPanels,TabPanel } from '@chakra-ui/react';
 import SessionCreation from "../Session/SessionCreation"
-import AdminSession from '../Session/AdminSession';
+import AdminSession from '../Session/AdminSessions';
 
 function MainTabs() {
     return (

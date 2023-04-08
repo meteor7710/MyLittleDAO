@@ -2,7 +2,7 @@ import { Box, Heading, FormControl, FormLabel, Select } from '@chakra-ui/react';
 import { useEffect, useState } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
-function AdminSession() {
+function AdminSessions() {
 
     const { state: { contract, accounts, creationBlock } } = useEth();
     const [sessionSelected, setSessionSelected] = useState("");
@@ -82,4 +82,4 @@ function AdminSession() {
     );
 }
 
-export default AdminSession;
+export default AdminSessions;
