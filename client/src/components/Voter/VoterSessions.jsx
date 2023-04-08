@@ -1,4 +1,4 @@
-import { Box, Heading, FormControl, FormLabel, Select, Alert, AlertIcon, Text } from '@chakra-ui/react';
+import { Box, Heading, FormControl, FormLabel, Select  } from '@chakra-ui/react';
 import { useEffect, useState } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
