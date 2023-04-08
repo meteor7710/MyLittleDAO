@@ -5,13 +5,13 @@ import useEth from "../../contexts/EthContext/useEth";
 function AdminSession() {
 
     const { state: { contract, accounts, creationBlock } } = useEth();
-    const [sessionSelected, setsessionSelected] = useState("");
-    const [sessionsAdmin, setSessionsAdmin] = useState([]);
+    const [sessionSelected, setSessionSelected] = useState("");
+    const [adminSessionList, setadminSessionList] = useState([]);
 
 
     //Manage Session selected
     const handleSelectedSession = e => {
-        setsessionSelected(e.target.value);
+        setSessionSelected(e.target.value);
     };
 
     //show session create where uses is admin
@@ -60,8 +60,7 @@ function AdminSession() {
                 <option key={"session" + index}>Session {session.id} - {session.title}</option>
             );
 
-            setSessionsAdmin(adminSessionsRendered);
-
+            setadminSessionList(adminSessionsRendered);
         })();
     }, [contract, accounts, creationBlock])
 
@@ -74,7 +73,7 @@ function AdminSession() {
                     <FormControl >
                         <FormLabel my="5px">Select Admin Session</FormLabel>
                         <Select my="5px" placeholder="Admin Sessions" onChange={handleSelectedSession} value={sessionSelected}>
-                            {sessionsAdmin}
+                            {adminSessionList}
                         </Select>
                     </FormControl>
                 </Box>
