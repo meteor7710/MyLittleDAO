@@ -74,7 +74,7 @@ function VoterSessionInformations({ voterSessionSelected, addressToWhitelistLog,
     return (
         <section className="adminSessionInformations">
             <Box my="10px" p="25px" border="1px" borderRadius="25px" borderColor="gray.200">
-                <Heading as="h3" size="lg">Voter Session Informations</Heading>
+                <Heading as="h3" size="lg">Session Informations</Heading>
                 <Box m="25px" >
                     {voterSessionInfos}
                 </Box>

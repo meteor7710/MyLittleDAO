@@ -30,7 +30,7 @@ function AdminSessionTransfer({ sessionSelected, setNewAdminAddressLog, setSessi
     return (
         <section className="adminSessionTransfert">
             <Box my="10px" p="25px" border='1px' borderRadius='25px' borderColor='gray.200'>
-                <Heading as="h3" size="lg">Admin Session Transfer</Heading>
+                <Heading as="h3" size="lg">Session Transfer</Heading>
                 <Box m="25px" >
                     <FormControl >
                         <Flex>

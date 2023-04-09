@@ -47,7 +47,7 @@ function VoterProposals({ voterSessionSelected, addProposalLog, setAddProposalLo
     return (
         <section className="VoterProposals">
             <Box my="10px" p="25px" border='1px' borderRadius='25px' borderColor='gray.200'>
-                <Heading as='h3' size='lg'>Voters Proposals</Heading>
+                <Heading as='h3' size='lg'>Proposals</Heading>
                 {((voterSessionType === "2") && (voterSessionStatus ==="1") ) ? (<VoterProposalsAdminCreation voterSessionSelected={voterSessionSelected} addProposalLog={addProposalLog} setAddProposalLog={setAddProposalLog} />) :
                     (voterSessionStatus ==="1") ? (<VoterProposalsCreation voterSessionSelected={voterSessionSelected} addProposalLog={addProposalLog} setAddProposalLog={setAddProposalLog} /> ):
                     <Text></Text>

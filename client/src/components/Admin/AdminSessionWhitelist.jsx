@@ -108,7 +108,7 @@ function AdminSessionWhitelist({ sessionSelected, addressToWhitelistLog, setAddr
     return (
         <section className="sessionWhitelist">
             <Box my="10px" p="25px" border='1px' borderRadius='25px' borderColor='gray.200'>
-                <Heading as='h3' size='lg'>Session Whitelist Registration</Heading>
+                <Heading as='h3' size='lg'>Whitelist Registration</Heading>
                 <Box m="25px" >
                     <FormControl >
                         <Flex>

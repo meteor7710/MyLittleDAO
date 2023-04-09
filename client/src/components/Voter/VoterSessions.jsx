@@ -70,7 +70,7 @@ function VoterSessions({voterSessionSelected,setVoterSessionSelected,addressToWh
                 <Heading as="h3" size="lg">Voter role Session List</Heading>
                 <Box m="25px" >
                     <FormControl >
-                        <FormLabel my="5px">Select Voter Session</FormLabel>
+                        <FormLabel my="5px">Select Session</FormLabel>
                         <Select my="5px" placeholder="Voter Sessions" onChange={handleSelectedSession} value={voterSessionSelected}>
                             {voterSessionList}
                         </Select>

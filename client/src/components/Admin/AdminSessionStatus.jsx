@@ -60,7 +60,7 @@ function AdminSessionStatus({ sessionSelected,workflowStatusLog,setWorkflowStatu
     return (
         <section className="adminSessionStatus">
             <Box my="10px" p="25px" border="1px" borderRadius="25px" borderColor="gray.200">
-                <Heading as="h3" size="lg">Admin Session Status</Heading>
+                <Heading as="h3" size="lg">Session Status</Heading>
                 <Box m="25px">
                     <Flex>
                         <Text my="25px">Change workflow status actions :</Text>

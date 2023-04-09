@@ -67,7 +67,7 @@ function AdminSessions({sessionSelected, setSessionSelected,sessionCreationLog,n
                 <Heading as="h3" size="lg">Admin role Session List</Heading>
                 <Box m="25px" >
                     <FormControl >
-                        <FormLabel my="5px">Select Admin Session</FormLabel>
+                        <FormLabel my="5px">Select Session</FormLabel>
                         <Select my="5px" placeholder="Admin Sessions" onChange={handleSelectedSession} value={sessionSelected}>
                             {adminSessionList}
                         </Select>

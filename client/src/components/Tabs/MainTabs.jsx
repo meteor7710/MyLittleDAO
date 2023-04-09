@@ -43,7 +43,6 @@ function MainTabs() {
             if (sessionSelected !== "") {
                 const session = await contract.methods.getSession((sessionSelected)).call({ from: accounts[0] });
                 setAdminSessionType(session.voteType);
-                
             }
             setWorkflowStatusLog("");
             setAddressToWhitelistLog("");
