@@ -32,7 +32,7 @@ function OwnerSettings({ ownerSessionSelected, settingLog, setSettingLog }) {
                 default:
             }
 
-            setSettingLog("Setting " + settingDisplay + " modified to " + settingTx.events.WithdrawalSubmitted.returnValues.value);
+            setSettingLog("Setting " + settingDisplay + " modified to " + settingTx.events.SettingsApplied.returnValues.value);
         }
     }
 
