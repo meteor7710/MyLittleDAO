@@ -60,7 +60,7 @@ function MainTabs() {
             setAddressToWhitelistLog("");
             setNewAdminAddressLog("");
         })();
-    }, [sessionSelected, accounts, contract, workflowStatusLog])
+    }, [sessionSelected, accounts, contract])
 
     //Initialize VoterTab 
     useEffect(() => {
