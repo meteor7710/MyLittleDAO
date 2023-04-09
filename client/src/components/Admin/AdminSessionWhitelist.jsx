@@ -53,8 +53,8 @@ function AdminSessionWhitelist({ sessionSelected, addressToWhitelistLog, setAddr
         if (!web3.utils.isAddress(addressToRemove)) { setErrorMsg("Address invalid"); onOpen(); setAddressToRemove(""); return; }
 
         //Validation address already submit
-        const voterRegisteredEvents = await contract.getPastEvents('VoterRegistered', { filter: { voterAddress: addressToWhitelist, sessionID: sessionSelected }, fromBlock: creationBlock, toBlock: 'latest' });
-        const voterUnregisteredEvents = await contract.getPastEvents('VoterUnregistered', { filter: { voterAddress: addressToWhitelist, sessionID: sessionSelected }, fromBlock: creationBlock, toBlock: 'latest' });
+        const voterRegisteredEvents = await contract.getPastEvents('VoterRegistered', { filter: { voterAddress: addressToRemove, sessionID: sessionSelected }, fromBlock: creationBlock, toBlock: 'latest' });
+        const voterUnregisteredEvents = await contract.getPastEvents('VoterUnregistered', { filter: { voterAddress: addressToRemove, sessionID: sessionSelected }, fromBlock: creationBlock, toBlock: 'latest' });
 
         if (voterRegisteredEvents.length === voterUnregisteredEvents.length) { setErrorMsg("Voter not whitelisted"); onOpen(); setAddressToRemove(""); return; }
 
