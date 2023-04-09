@@ -9,8 +9,10 @@ import AdminDonations from '../Admin/AdminDonations';
 import VoterSessions from '../Voter/VoterSessions';
 import VoterSessionInformations from '../Voter/VoterSessionInformations';
 import VoterDonations from '../Voter/VoterDonations';
+import VoterProposals from '../Voter/VoterProposals';
 import { useState, useEffect } from "react";
 import useEth from "../../contexts/EthContext/useEth";
+
 function MainTabs() {
 
     const [sessionSelected, setSessionSelected] = useState("");
@@ -21,7 +23,9 @@ function MainTabs() {
     const [amountToDonateLog, setAmountToDonateLog] = useState("");
     const [voterSessionSelected, setVoterSessionSelected] = useState("");
     const [voterSessionType, setVoterSessionType] = useState("");
+    const [voterSessionStatus, setVoterSessionStatus] = useState("");
     const [adminSessionType, setAdminSessionType] = useState("");
+    const [addProposalLog, setAddProposalLog] = useState("");
 
     const { state: { contract, accounts, networkID } } = useEth();
 
@@ -38,11 +42,12 @@ function MainTabs() {
         (async function () {
             if (sessionSelected !== "") {
                 const session = await contract.methods.getSession((sessionSelected)).call({ from: accounts[0] });
-                setAdminSessionType(session.voteType)
+                setAdminSessionType(session.voteType);
+                
             }
             setWorkflowStatusLog("");
             setAddressToWhitelistLog("");
-            setNewAdminAddressLog("")
+            setNewAdminAddressLog("");
         })();
     }, [sessionSelected,accounts, contract])
 
@@ -51,9 +56,11 @@ function MainTabs() {
         (async function () {
             if (voterSessionSelected !== "") {
                 const session = await contract.methods.getSession((voterSessionSelected)).call({ from: accounts[0] });
-                setVoterSessionType(session.voteType)
+                setVoterSessionType(session.voteType);
+                setVoterSessionStatus(session.workflowStatus);
             }
-            setAmountToDonateLog("")
+            setAmountToDonateLog("");
+            setAddProposalLog("");
         })();
     }, [voterSessionSelected, accounts, contract])
 
@@ -73,10 +80,13 @@ function MainTabs() {
             <VoterSessionInformations voterSessionSelected={voterSessionSelected} addressToWhitelistLog={addressToWhitelistLog} workflowStatusLog={workflowStatusLog} />
             {(voterSessionType === "1") ? <VoterDonations voterSessionSelected={voterSessionSelected} amountToDonateLog={amountToDonateLog} setAmountToDonateLog={setAmountToDonateLog} /> :
                 <Text></Text>}
+            {(voterSessionStatus === "1") ? <VoterProposals voterSessionSelected={voterSessionSelected} addProposalLog={addProposalLog} setAddProposalLog={setAddProposalLog} voterSessionType={voterSessionType}/> :
+                <Text></Text>}
+            
 
 
         </>;
-
+    
 
     return (
         <Box >
@@ -96,7 +106,7 @@ function MainTabs() {
                             <Text></Text>}
                     </TabPanel>
                     <TabPanel>
-                        <VoterSessions voterSessionSelected={voterSessionSelected} setVoterSessionSelected={setVoterSessionSelected} sessionCreationLog={sessionCreationLog} />
+                        <VoterSessions voterSessionSelected={voterSessionSelected} setVoterSessionSelected={setVoterSessionSelected} addressToWhitelistLog={addressToWhitelistLog} />
                         {(voterSessionSelected !== "") ? (voter) :
                             <Text></Text>}
                     </TabPanel>
