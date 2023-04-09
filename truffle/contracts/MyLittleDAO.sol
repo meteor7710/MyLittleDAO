@@ -164,7 +164,7 @@ contract MyLittleDAO is Ownable {
     /** @notice This event is emitted when a proposal is registrered.
         @param proposalId The registered proposal ID.
         @param sessionID The session ID.*/
-    event ProposalRegistered(uint16 proposalId, uint64 sessionID);
+    event ProposalRegistered(uint16 proposalId, uint64 indexed sessionID);
 
     /** @notice This event is emitted when a donation is done.
         @param amount The donation amount.
