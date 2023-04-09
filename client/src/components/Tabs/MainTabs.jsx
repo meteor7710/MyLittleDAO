@@ -18,6 +18,7 @@ import VoterResult from '../Voter/VoterResult';
 import WithdrawerSessions from '../Withdrawer/WithdrawerSessions';
 import WithdrawerWithdraw from '../Withdrawer/WithdrawerWithdraw';
 import OwnerSessions from '../Owner/OwnerSessions';
+import OwnerSettings from '../Owner/OwnerSettings';
 import { useState, useEffect } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
@@ -39,6 +40,7 @@ function MainTabs() {
     const [addProposalLog, setAddProposalLog] = useState("");
     const [voteLog, setVoteLog] = useState("");
     const [withdrawLog, setWithdrawLog] = useState("");
+    const [settingLog, setSettingLog] = useState("");
 
     const { state: { contract, accounts, networkID } } = useEth();
 
@@ -61,7 +63,7 @@ function MainTabs() {
             setAddressToWhitelistLog("");
             setNewAdminAddressLog("");
         })();
-    }, [sessionSelected, accounts, contract,workflowStatusLog])
+    }, [sessionSelected, accounts, contract, workflowStatusLog])
 
     useEffect(() => {
         (async function () {
@@ -89,6 +91,13 @@ function MainTabs() {
             setWithdrawLog("");
         })();
     }, [withdrawerSessionSelected, accounts, contract])
+
+    //Initialize WitdrawerTab 
+    useEffect(() => {
+        (async function () {
+            setSettingLog("");
+        })();
+    }, [ownerSessionSelected, accounts, contract])
 
 
     const admin =
@@ -123,6 +132,11 @@ function MainTabs() {
             <WithdrawerWithdraw withdrawerSessionSelected={withdrawerSessionSelected} withdrawLog={withdrawLog} setWithdrawLog={setWithdrawLog} />
         </>;
 
+    const owner =
+        <>
+            <OwnerSettings ownerSessionSelected={ownerSessionSelected} settingLog={settingLog} setSettingLog={setSettingLog} />
+        </>;
+
     return (
         <Box >
             <Tabs variant='line'>
@@ -154,6 +168,8 @@ function MainTabs() {
                     </TabPanel>
                     <TabPanel>
                         <OwnerSessions ownerSessionSelected={ownerSessionSelected} setOwnerSessionSelected={setOwnerSessionSelected} workflowStatusLog={workflowStatusLog} />
+                        {(ownerSessionSelected !== "") ? (owner) :
+                            <Text></Text>}
                     </TabPanel>
                 </TabPanels>
             </Tabs>
