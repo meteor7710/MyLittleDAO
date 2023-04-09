@@ -2,7 +2,7 @@ import { Box, Heading, FormControl, FormLabel, Select } from '@chakra-ui/react';
 import { useEffect, useState } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
-function VoterSessions({voterSessionSelected,setVoterSessionSelected}) {
+function VoterSessions({voterSessionSelected,setVoterSessionSelected,sessionCreationLog}) {
 
     const { state: { contract, accounts, creationBlock, networkID } } = useEth();
     const [voterSessionList, setVoterSessionList] = useState([]);
@@ -58,7 +58,7 @@ function VoterSessions({voterSessionSelected,setVoterSessionSelected}) {
 
             setVoterSessionList(voterSessionsRendered);
         })();
-    }, [contract, accounts, networkID, creationBlock])
+    }, [contract, accounts, networkID, creationBlock,sessionCreationLog])
 
 
 
