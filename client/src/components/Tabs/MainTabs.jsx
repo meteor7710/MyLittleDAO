@@ -4,6 +4,7 @@ import AdminSessions from '../Admin/AdminSessions';
 import AdminSessionInformations from '../Admin/AdminSessionInformations';
 import AdminSessionStatus from '../Admin/AdminSessionStatus';
 import AdminSessionWhitelist from '../Admin/AdminSessionWhitelist';
+import AdminProposals from '../Admin/AdminProposals';
 import AdminSessionTransfer from '../Admin/AdminSessionTransfer';
 import AdminDonations from '../Admin/AdminDonations';
 import VoterSessions from '../Voter/VoterSessions';
@@ -71,6 +72,7 @@ function MainTabs() {
             <AdminSessionStatus sessionSelected={sessionSelected} workflowStatusLog={workflowStatusLog} setWorkflowStatusLog={setWorkflowStatusLog} />
             {(adminSessionType === "1") ? <AdminDonations sessionSelected={sessionSelected} amountToDonateLog={amountToDonateLog}/> :
                 <Text></Text>}
+            <AdminProposals sessionSelected={sessionSelected} addProposalLog={addProposalLog}/>
             <AdminSessionTransfer sessionSelected={sessionSelected} setNewAdminAddressLog={setNewAdminAddressLog} setSessionSelected={setSessionSelected} />
         </>;
 
