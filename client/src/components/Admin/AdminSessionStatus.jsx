@@ -6,7 +6,6 @@ function AdminSessionStatus({ sessionSelected, workflowStatusLog, setWorkflowSta
 
     const { state: { contract, accounts, creationBlock } } = useEth();
     const [workflowEvents, setWorkflowEvents] = useState();
-
     const [errorMsg, setErrorMsg] = useState("");
     const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -46,6 +45,7 @@ function AdminSessionStatus({ sessionSelected, workflowStatusLog, setWorkflowSta
 
         if (session.workflowStatus === "0" && session.sessionVoters === "0") { setErrorMsg("You must have one voter before changing status"); onOpen(); return; }
         if (session.workflowStatus === "1" && session.sessionProposals === "0") { setErrorMsg("You must have one proposal before changing status"); onOpen(); return; }
+        if (session.workflowStatus === "5") { setErrorMsg("Session is already tallied"); onOpen(); return; }
 
         if (session.workflowStatus === "3") {
             const voterEvents = await contract.getPastEvents('VoteSubmitted', { filter: { sessionID: sessionSelected }, fromBlock: creationBlock, toBlock: 'latest' });
@@ -70,7 +70,7 @@ function AdminSessionStatus({ sessionSelected, workflowStatusLog, setWorkflowSta
                     <Flex>
                         <Text my="25px">Change workflow status actions :</Text>
                         <Center mx="25px">
-                            {(adminSessionStatus !== "5") ? (<Button colorScheme='gray' onClick={changeStatus}>Change to next status</Button>) :
+                            {(adminSessionStatus !== "5" ) ? (<Button colorScheme='gray' onClick={changeStatus}>Change to next status</Button>) :
                                 <Alert width="auto" status='warning' borderRadius='25px'> <AlertIcon />Session Tallied</Alert>}
                         </Center>
                     </Flex>

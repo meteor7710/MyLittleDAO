@@ -17,6 +17,7 @@ import VoterVotes from '../Voter/VoterVotes';
 import VoterResult from '../Voter/VoterResult';
 import WithdrawerSessions from '../Withdrawer/WithdrawerSessions';
 import WithdrawerWithdraw from '../Withdrawer/WithdrawerWithdraw';
+import OwnerSessions from '../Owner/OwnerSessions';
 import { useState, useEffect } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
@@ -34,6 +35,7 @@ function MainTabs() {
     const [adminSessionType, setAdminSessionType] = useState("");
     const [adminSessionStatus, setAdminSessionStatus] = useState("");
     const [withdrawerSessionSelected, setWithdrawerSessionSelected] = useState("");
+    const [ownerSessionSelected, setOwnerSessionSelected] = useState("");
     const [addProposalLog, setAddProposalLog] = useState("");
     const [voteLog, setVoteLog] = useState("");
     const [withdrawLog, setWithdrawLog] = useState("");
@@ -56,9 +58,14 @@ function MainTabs() {
                 setAdminSessionType(session.voteType);
                 setAdminSessionStatus(session.workflowStatus);
             }
-            setWorkflowStatusLog("");
             setAddressToWhitelistLog("");
             setNewAdminAddressLog("");
+        })();
+    }, [sessionSelected, accounts, contract,workflowStatusLog])
+
+    useEffect(() => {
+        (async function () {
+            setWorkflowStatusLog("");
         })();
     }, [sessionSelected, accounts, contract])
 
@@ -120,10 +127,11 @@ function MainTabs() {
         <Box >
             <Tabs variant='line'>
                 <TabList>
-                    <Tab>Create new Sessions</Tab>
-                    <Tab>Admin role Sessions</Tab>
-                    <Tab>Vote role Sessions</Tab>
-                    <Tab>Withdrawer role Sessions</Tab>
+                    <Tab>Create new</Tab>
+                    <Tab>Admin role</Tab>
+                    <Tab>Vote role</Tab>
+                    <Tab>Withdrawer role</Tab>
+                    <Tab>Owner role</Tab>
                 </TabList>
                 <TabPanels>
                     <TabPanel>
@@ -143,6 +151,9 @@ function MainTabs() {
                         <WithdrawerSessions withdrawerSessionSelected={withdrawerSessionSelected} setWithdrawerSessionSelected={setWithdrawerSessionSelected} workflowStatusLog={workflowStatusLog} />
                         {(withdrawerSessionSelected !== "") ? (withdrawer) :
                             <Text></Text>}
+                    </TabPanel>
+                    <TabPanel>
+                        <OwnerSessions ownerSessionSelected={ownerSessionSelected} setOwnerSessionSelected={setOwnerSessionSelected} workflowStatusLog={workflowStatusLog} />
                     </TabPanel>
                 </TabPanels>
             </Tabs>
