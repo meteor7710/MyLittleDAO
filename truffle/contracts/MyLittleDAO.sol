@@ -159,7 +159,7 @@ contract MyLittleDAO is Ownable {
         @param previousStatus The session previous workflowstatus.
         @param newStatus The session new workflowstatus.
         @param sessionID The session ID.*/
-    event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus, uint64 indexed sessionID);
+    event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus indexed newStatus, uint64 indexed sessionID);
 
     /** @notice This event is emitted when a proposal is registrered.
         @param proposalId The registered proposal ID.
