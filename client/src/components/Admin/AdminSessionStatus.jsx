@@ -20,8 +20,8 @@ function AdminSessionStatus({ sessionSelected, workflowStatusLog, setWorkflowSta
                 workflowChanges.push(
                     {
                         blockNumber: workflowStatusEvents[i].blockNumber,
-                        previousStatus: workflowStatusEvents[i].returnValues.previousStatus,
-                        newStatus: workflowStatusEvents[i].returnValues.newStatus,
+                        previousStatus: parseStatus(workflowStatusEvents[i].returnValues.previousStatus),
+                        newStatus: parseStatus(workflowStatusEvents[i].returnValues.newStatus),
                     });
             };
 
@@ -37,6 +37,33 @@ function AdminSessionStatus({ sessionSelected, workflowStatusLog, setWorkflowSta
             setWorkflowEvents(listWorkflowChanges);
         })();
     }, [contract, sessionSelected, creationBlock, workflowStatusLog])
+
+    //Get proposal information from a proposal ID
+    function parseStatus(_status) {
+        let displayStatus;
+        switch (_status) {
+            case "0":
+                displayStatus = "Registering Voters";
+                break;
+            case "1":
+                displayStatus = "Proposals Registration Started";
+                break;
+            case "2":
+                displayStatus = "Proposals Registration Ended";
+                break;
+            case "3":
+                displayStatus = "Voting Session Started";
+                break;
+            case "4":
+                displayStatus = "Voting Session Ended";
+                break;
+            case "5":
+                displayStatus = "Votes Tallied";
+                break;
+            default:
+        }
+        return displayStatus;
+    };
 
     //Change workflowstatus to next status
     const changeStatus = async () => {
@@ -58,7 +85,7 @@ function AdminSessionStatus({ sessionSelected, workflowStatusLog, setWorkflowSta
             const workflowPreviousStatus = workflowStatusTx.events.WorkflowStatusChange.returnValues.previousStatus;
             const workflowNewStatus = workflowStatusTx.events.WorkflowStatusChange.returnValues.newStatus;
 
-            setWorkflowStatusLog("Change status from " + workflowPreviousStatus + " to " + workflowNewStatus);
+            setWorkflowStatusLog("Change status from " + parseStatus(workflowPreviousStatus) + " to " + parseStatus(workflowNewStatus));
         }
     };
 
