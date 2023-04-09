@@ -2,11 +2,11 @@ import { Box, Heading, FormControl, FormLabel, Select } from '@chakra-ui/react';
 import { useEffect, useState } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
-function VoterSessions() {
+function VoterSessions({voterSessionSelected,setVoterSessionSelected}) {
 
     const { state: { contract, accounts, creationBlock, networkID } } = useEth();
     const [voterSessionList, setVoterSessionList] = useState([]);
-    const [voterSessionSelected, setVoterSessionSelected] = useState("");
+   
 
     //Manage Session selected
     const handleSelectedSession = e => {

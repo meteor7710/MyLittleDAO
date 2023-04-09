@@ -6,6 +6,7 @@ import AdminSessionStatus from '../Admin/AdminSessionStatus';
 import AdminSessionWhitelist from '../Admin/AdminSessionWhitelist';
 import AdminSessionTransfer from '../Admin/AdminSessionTransfer';
 import VoterSessions from '../Voter/VoterSessions';
+import VoterSessionInformations from '../Voter/VoterSessionInformations';
 import { useState, useEffect } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 function MainTabs() {
@@ -15,6 +16,7 @@ function MainTabs() {
     const [workflowStatusLog, setWorkflowStatusLog] = useState("");
     const [sessionCreationLog, setSessionCreationLog] = useState("");
     const [newAdminAddressLog, setNewAdminAddressLog] = useState("");
+    const [voterSessionSelected, setVoterSessionSelected] = useState("");
     const { state: { contract, accounts, networkID } } = useEth();
 
     //Initialize variables 
@@ -22,7 +24,7 @@ function MainTabs() {
         (async function () {
             setSessionSelected("");
         })();
-    }, [contract, accounts,networkID ])
+    }, [contract, accounts, networkID])
 
     //Initialize logs 
     useEffect(() => {
@@ -30,15 +32,21 @@ function MainTabs() {
             setWorkflowStatusLog("");
             setAddressToWhitelistLog("");
         })();
-    }, [sessionSelected ])
+    }, [sessionSelected])
 
 
     const admin =
         <>
-            <AdminSessionInformations sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} workflowStatusLog={workflowStatusLog}/>
+            <AdminSessionInformations sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} workflowStatusLog={workflowStatusLog} />
             <AdminSessionWhitelist sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} setAddressToWhitelistLog={setAddressToWhitelistLog} />
             <AdminSessionStatus sessionSelected={sessionSelected} workflowStatusLog={workflowStatusLog} setWorkflowStatusLog={setWorkflowStatusLog} />
             <AdminSessionTransfer sessionSelected={sessionSelected} setNewAdminAddressLog={setNewAdminAddressLog} setSessionSelected={setSessionSelected} />
+        </>;
+
+    const voter =
+        <>
+            <VoterSessionInformations voterSessionSelected={voterSessionSelected} addressToWhitelistLog={addressToWhitelistLog} workflowStatusLog={workflowStatusLog} />
+
         </>;
 
 
@@ -59,12 +67,14 @@ function MainTabs() {
                         <SessionCreation sessionCreationLog={sessionCreationLog} setSessionCreationLog={setSessionCreationLog} />
                     </TabPanel>
                     <TabPanel>
-                        <AdminSessions sessionSelected={sessionSelected} setSessionSelected={setSessionSelected} sessionCreationLog={sessionCreationLog} newAdminAddressLog={newAdminAddressLog} setNewAdminAddressLog={setNewAdminAddressLog}/>
+                        <AdminSessions sessionSelected={sessionSelected} setSessionSelected={setSessionSelected} sessionCreationLog={sessionCreationLog} newAdminAddressLog={newAdminAddressLog} setNewAdminAddressLog={setNewAdminAddressLog} />
                         {(sessionSelected !== "") ? (admin) :
                             <Text></Text>}
                     </TabPanel>
                     <TabPanel>
-                        <VoterSessions />
+                        <VoterSessions voterSessionSelected={voterSessionSelected} setVoterSessionSelected={setVoterSessionSelected}  />
+                        {(voterSessionSelected !== "") ? (voter) :
+                            <Text></Text>}
                     </TabPanel>
                 </TabPanels>
             </Tabs>
