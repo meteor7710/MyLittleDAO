@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useEth } from "../../contexts/EthContext";
-import { Heading, Button, Text, Box, Alert, AlertIcon, AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogContent, AlertDialogOverlay, useDisclosure } from '@chakra-ui/react';
+import { Heading, Button, Text, Box, Alert, AlertIcon, AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogContent, AlertDialogOverlay, useDisclosure, Table,TableContainer,TableCaption,
+ Thead,Tr,Th,Tbody, Td} from '@chakra-ui/react';
 
 function WithdrawerWithdraw({ withdrawerSessionSelected, withdrawLog, setWithdrawLog }) {
     const { state: { contract, accounts, web3, creationBlock } } = useEth();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [errorMsg, setErrorMsg] = useState("");
+    const [registeredWithdrawals, setRegisteredWithdrawals] = useState();
 
     //Withdraw session
     const withdrawSession = async () => {
@@ -22,6 +24,37 @@ function WithdrawerWithdraw({ withdrawerSessionSelected, withdrawLog, setWithdra
         }
     }
 
+    //show withdraw history
+    useEffect(() => {
+        (async function () {
+            const withdrawEvents = await contract.getPastEvents('WithdrawalSubmitted', {filter: {sessionID: withdrawerSessionSelected }, fromBlock: creationBlock, toBlock: 'latest' });
+
+            const whitdrawals = [];
+
+            for (let i = 0; i < withdrawEvents.length; i++) {
+                whitdrawals.push(
+                    {
+                        blockNumber: withdrawEvents[i].blockNumber,
+                        amount: web3.utils.fromWei(withdrawEvents[i].returnValues.amount, 'ether'),
+                        withdrawer: withdrawEvents[i].returnValues.withdrawer
+                    });
+            };
+
+            //Build table body of registered address
+            const listWithdrawals = whitdrawals.map((withdraw, index) =>
+                <Tr key={"withdraw" + index}>
+                    <Td>{withdraw.blockNumber}</Td>
+                    <Td>{withdraw.amount}</Td>
+                    <Td>{withdraw.withdrawer}</Td>
+                </Tr>
+            );
+
+            setRegisteredWithdrawals(listWithdrawals);
+        })();
+    }, [contract, accounts,withdrawerSessionSelected, creationBlock, setWithdrawLog ,web3])
+
+
+
     return (
         <section className="votes">
             <Box my="10px" p="25px" border='1px' borderRadius='25px' borderColor='gray.200'>
@@ -33,6 +66,19 @@ function WithdrawerWithdraw({ withdrawerSessionSelected, withdrawLog, setWithdra
                     {(withdrawLog !== "") ? (<Alert width="auto" status='success' borderRadius='25px'> <AlertIcon /> {withdrawLog} </Alert>) :
                         <Text></Text>}
                 </Box>
+                <TableContainer my="10px" maxHeight="380px" overflowY="auto">
+                    <Table>
+                        <TableCaption>Withdrawals</TableCaption>
+                        <Thead>
+                            <Tr>
+                                <Th>Block Number</Th>
+                                <Th>Amount (ETH)</Th>
+                                <Th>Withdrawer</Th>
+                            </Tr>
+                        </Thead>
+                        <Tbody>{registeredWithdrawals}</Tbody>
+                    </Table>
+                </TableContainer>
 
             </Box>
             <AlertDialog isOpen={isOpen} onClose={onClose} >

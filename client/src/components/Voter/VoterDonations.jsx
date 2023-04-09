@@ -6,7 +6,6 @@ import useEth from "../../contexts/EthContext/useEth";
 function VoterDonations({ voterSessionSelected,amountToDonateLog,setAmountToDonateLog }) {
 
     const [amountToDonate, setAmountToDonate] = useState("");
-    
     const [registeredDonations, setregisteredDonations] = useState();
     const [errorMsg, setErrorMsg] = useState("");
     const { state: { contract, accounts, web3, creationBlock } } = useEth();
