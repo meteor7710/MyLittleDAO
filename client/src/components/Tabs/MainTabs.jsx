@@ -8,11 +8,13 @@ import AdminProposals from '../Admin/AdminProposals';
 import AdminSessionTransfer from '../Admin/AdminSessionTransfer';
 import AdminDonations from '../Admin/AdminDonations';
 import AdminVotes from '../Admin/AdminVotes';
+import AdminResult from '../Admin/AdminResult';
 import VoterSessions from '../Voter/VoterSessions';
 import VoterSessionInformations from '../Voter/VoterSessionInformations';
 import VoterDonations from '../Voter/VoterDonations';
 import VoterProposals from '../Voter/VoterProposals';
 import VoterVotes from '../Voter/VoterVotes';
+import VoterResult from '../Voter/VoterResult';
 import { useState, useEffect } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
@@ -54,7 +56,7 @@ function MainTabs() {
             setAddressToWhitelistLog("");
             setNewAdminAddressLog("");
         })();
-    }, [sessionSelected,accounts, contract,workflowStatusLog])
+    }, [sessionSelected, accounts, contract, workflowStatusLog])
 
     //Initialize VoterTab 
     useEffect(() => {
@@ -68,7 +70,7 @@ function MainTabs() {
             setAddProposalLog("");
             setVoteLog("");
         })();
-    }, [voterSessionSelected, accounts, contract,workflowStatusLog])
+    }, [voterSessionSelected, accounts, contract, workflowStatusLog])
 
 
     const admin =
@@ -76,10 +78,12 @@ function MainTabs() {
             <AdminSessionInformations sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} workflowStatusLog={workflowStatusLog} />
             <AdminSessionWhitelist sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} setAddressToWhitelistLog={setAddressToWhitelistLog} />
             <AdminSessionStatus sessionSelected={sessionSelected} workflowStatusLog={workflowStatusLog} setWorkflowStatusLog={setWorkflowStatusLog} adminSessionStatus={adminSessionStatus} />
-            {(adminSessionType === "1") ? <AdminDonations sessionSelected={sessionSelected} amountToDonateLog={amountToDonateLog}/> :
+            {(adminSessionType === "1") ? <AdminDonations sessionSelected={sessionSelected} amountToDonateLog={amountToDonateLog} /> :
                 <Text></Text>}
-            <AdminProposals sessionSelected={sessionSelected} addProposalLog={addProposalLog}/>
-            <AdminVotes sessionSelected={sessionSelected}  voteLog={voteLog}/>
+            <AdminProposals sessionSelected={sessionSelected} addProposalLog={addProposalLog} />
+            <AdminVotes sessionSelected={sessionSelected} voteLog={voteLog} />
+            {(adminSessionStatus === "5") ? <AdminResult sessionSelected={sessionSelected} adminSessionStatus={adminSessionStatus} /> :
+                <Text></Text>}
             <AdminSessionTransfer sessionSelected={sessionSelected} setNewAdminAddressLog={setNewAdminAddressLog} setSessionSelected={setSessionSelected} />
         </>;
 
@@ -88,12 +92,13 @@ function MainTabs() {
             <VoterSessionInformations voterSessionSelected={voterSessionSelected} addressToWhitelistLog={addressToWhitelistLog} workflowStatusLog={workflowStatusLog} />
             {(voterSessionType === "1") ? <VoterDonations voterSessionSelected={voterSessionSelected} amountToDonateLog={amountToDonateLog} setAmountToDonateLog={setAmountToDonateLog} /> :
                 <Text></Text>}
-            {(voterSessionStatus >= "1") ? <VoterProposals voterSessionSelected={voterSessionSelected} addProposalLog={addProposalLog} setAddProposalLog={setAddProposalLog} voterSessionStatus={voterSessionStatus} voterSessionType={voterSessionType}/> :
+            {(voterSessionStatus >= "1") ? <VoterProposals voterSessionSelected={voterSessionSelected} addProposalLog={addProposalLog} setAddProposalLog={setAddProposalLog} voterSessionStatus={voterSessionStatus} voterSessionType={voterSessionType} /> :
                 <Text></Text>}
             {(voterSessionStatus === "3") ? <VoterVotes voterSessionSelected={voterSessionSelected} voterSessionType={voterSessionType} voteLog={voteLog} setVoteLog={setVoteLog} /> :
-             <Text></Text>}
+                <Text></Text>}
+            {(voterSessionStatus === "5") ? <VoterResult voterSessionSelected={voterSessionSelected} voterSessionStatus={voterSessionStatus} /> :
+                <Text></Text>}
         </>;
-    
 
     return (
         <Box >
