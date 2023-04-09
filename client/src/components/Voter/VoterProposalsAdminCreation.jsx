@@ -6,7 +6,7 @@ import useEth from "../../contexts/EthContext/useEth";
 
 function VoterProposalsAdminCreation({ voterSessionSelected, addProposalLog, setAddProposalLog }) {
 
-    const { state: { contract, accounts } } = useEth();
+    const { state: { contract, accounts, creationBlock } } = useEth();
     const [proposalToAdd, setProposalToAdd] = useState("");
     const [proposalSetting, setProposalSetting] = useState("0");
     const [proposalSettingValue, setProposalSettingValue] = useState("0");
@@ -34,15 +34,20 @@ function VoterProposalsAdminCreation({ voterSessionSelected, addProposalLog, set
         if (!(proposalSetting === "1" || proposalSetting === "2")) { setErrorMsg("Setting must selected "); onOpen(); return; }
         if (proposalSettingValue === "" || proposalSettingValue === "0") { setErrorMsg("Setting value can't be null or 0"); onOpen(); return; }
 
+        //Validation max proposal not reach
+        const maxProposalperSession = await contract.methods.maxProposalperSession().call({ from: accounts[0] });
+        const maxRegisteredEvents = await contract.getPastEvents('ProposalRegistered', { filter: { sessionID: voterSessionSelected }, fromBlock: creationBlock, toBlock: 'latest' });
+        if (maxRegisteredEvents.length >= maxProposalperSession) { setErrorMsg("Max porposal per session reached"); onOpen(); setProposalToAdd("");setProposalSetting(""); setProposalSettingValue(""); return; }
+
         const session = await contract.methods.getSession(voterSessionSelected).call({ from: accounts[0] });
-        if (session.workflowStatus !== "1") { setErrorMsg("You can't vote at this status"); onOpen(); setProposalToAdd(""); return; }
+        if (session.workflowStatus !== "1") { setErrorMsg("You can't vote at this status"); onOpen(); setProposalToAdd("");setProposalSetting(""); setProposalSettingValue(""); return; }
 
         if (await contract.methods.registerProposal(proposalToAdd, voterSessionSelected, proposalSetting, proposalSettingValue).call({ from: accounts[0] })) {
             const addProposalTx = await contract.methods.registerProposal(proposalToAdd, voterSessionSelected, proposalSetting, proposalSettingValue).send({ from: accounts[0] });
 
             const addedProposalId = addProposalTx.events.ProposalRegistered.returnValues.proposalId;
             setAddProposalLog("Proposal " + addedProposalId + " registered");
-            setProposalToAdd("");
+            setProposalToAdd("");setProposalSetting(""); setProposalSettingValue("");
         }
     };
 
