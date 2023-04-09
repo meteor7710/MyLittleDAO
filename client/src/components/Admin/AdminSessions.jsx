@@ -40,7 +40,6 @@ function AdminSessions({sessionSelected, setSessionSelected,sessionCreationLog,n
                     sessionAdmin = sessionsTransferredEvents[sessionsTransferredEvents.length-1].returnValues.newAdmin;
                 }
 
-
                 if (sessionAdmin === accounts[0]) {
 
                     let session = await getSessionlInformations(sessionsEvents[i].returnValues.sessionID);

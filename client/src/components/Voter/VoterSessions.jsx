@@ -1,4 +1,4 @@
-import { Box, Heading, FormControl, FormLabel, Select  } from '@chakra-ui/react';
+import { Box, Heading, FormControl, FormLabel, Select } from '@chakra-ui/react';
 import { useEffect, useState } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
@@ -28,28 +28,27 @@ function VoterSessions() {
             const sessionsEvents = await contract.getPastEvents("VoterRegistered", { filter: { voterAddress: accounts[0] }, fromBlock: creationBlock, toBlock: "latest" });
 
             let voterSessions = [];
+            let pos;
 
             for (let i = 0; i < sessionsEvents.length; i++) {
 
-                /*//validate adminship has not been transferred to another
-                let sessionAdmin = sessionsEvents[i].returnValues.adminAddress
+                const voterAddedEvents = await contract.getPastEvents('VoterRegistered', { filter: { sessionID: sessionsEvents[i].returnValues.sessionID, voterAddress: accounts[0] }, fromBlock: creationBlock, toBlock: 'latest' });
+                const voterRemovedEvents = await contract.getPastEvents('VoterUnregistered', { filter: { sessionID: sessionsEvents[i].returnValues.sessionID, voterAddress: accounts[0] }, fromBlock: creationBlock, toBlock: 'latest' });
 
-                //Create Session admin transfer list from events and apply last admin
-                const sessionsTransferredEvents = await contract.getPastEvents("sessionAdminTransferred", { filter: { sessionID: sessionsEvents[i].returnValues.sessionID }, fromBlock: creationBlock, toBlock: "latest" });
-                if (sessionsTransferredEvents.length > 0) {
-                    sessionAdmin = sessionsTransferredEvents[sessionsTransferredEvents.length - 1].returnValues.newAdmin;
-                }*/
+                if (voterAddedEvents.length > voterRemovedEvents.length) {
 
+                    pos = voterSessions.map(e => e.id).indexOf(sessionsEvents[i].returnValues.sessionID);
 
-                //if (sessionAdmin === accounts[0]) {
+                    if (pos === -1) {
 
-                    let session = await getSessionlInformations(sessionsEvents[i].returnValues.sessionID);
-                    voterSessions.push(
-                        {
-                            id: sessionsEvents[i].returnValues.sessionID,
-                            title: session.title,
-                        });
-                //}
+                        let session = await getSessionlInformations(sessionsEvents[i].returnValues.sessionID);
+                        voterSessions.push(
+                            {
+                                id: sessionsEvents[i].returnValues.sessionID,
+                                title: session.title,
+                            });
+                    }
+                }
             }
 
             //Manage admin list selection
@@ -59,7 +58,7 @@ function VoterSessions() {
 
             setVoterSessionList(voterSessionsRendered);
         })();
-    }, [contract, accounts, networkID, creationBlock ])
+    }, [contract, accounts, networkID, creationBlock])
 
 
 
