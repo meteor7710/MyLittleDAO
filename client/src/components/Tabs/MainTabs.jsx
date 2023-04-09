@@ -80,7 +80,7 @@ function MainTabs() {
             <VoterSessionInformations voterSessionSelected={voterSessionSelected} addressToWhitelistLog={addressToWhitelistLog} workflowStatusLog={workflowStatusLog} />
             {(voterSessionType === "1") ? <VoterDonations voterSessionSelected={voterSessionSelected} amountToDonateLog={amountToDonateLog} setAmountToDonateLog={setAmountToDonateLog} /> :
                 <Text></Text>}
-            {(voterSessionStatus === "1") ? <VoterProposals voterSessionSelected={voterSessionSelected} addProposalLog={addProposalLog} setAddProposalLog={setAddProposalLog} voterSessionType={voterSessionType}/> :
+            {(voterSessionStatus >= "1") ? <VoterProposals voterSessionSelected={voterSessionSelected} addProposalLog={addProposalLog} setAddProposalLog={setAddProposalLog} voterSessionStatus={voterSessionStatus} voterSessionType={voterSessionType}/> :
                 <Text></Text>}
             
 

@@ -44,16 +44,14 @@ function VoterProposals({ voterSessionSelected, addProposalLog, setAddProposalLo
         })();
     }, [contract, accounts, creationBlock, addProposalLog, voterSessionSelected])
 
-
-    console.log("voterSessionStatus")
-    console.log(voterSessionStatus)
-
     return (
         <section className="VoterProposals">
             <Box my="10px" p="25px" border='1px' borderRadius='25px' borderColor='gray.200'>
                 <Heading as='h3' size='lg'>Voters Proposals</Heading>
-                {(voterSessionType === "2") ? (<VoterProposalsAdminCreation voterSessionSelected={voterSessionSelected} addProposalLog={addProposalLog} setAddProposalLog={setAddProposalLog} />) :
-                    <VoterProposalsCreation voterSessionSelected={voterSessionSelected} addProposalLog={addProposalLog} setAddProposalLog={setAddProposalLog} /> }
+                {((voterSessionType === "2") && (voterSessionStatus ==="1") ) ? (<VoterProposalsAdminCreation voterSessionSelected={voterSessionSelected} addProposalLog={addProposalLog} setAddProposalLog={setAddProposalLog} />) :
+                    (voterSessionStatus ==="1") ? (<VoterProposalsCreation voterSessionSelected={voterSessionSelected} addProposalLog={addProposalLog} setAddProposalLog={setAddProposalLog} /> ):
+                    <Text></Text>
+                    }
                 <TableContainer maxHeight="380px" overflowY="auto">
                     <Table>
                         <TableCaption>Proposals list</TableCaption>
