@@ -11,6 +11,7 @@ import VoterSessions from '../Voter/VoterSessions';
 import VoterSessionInformations from '../Voter/VoterSessionInformations';
 import VoterDonations from '../Voter/VoterDonations';
 import VoterProposals from '../Voter/VoterProposals';
+import VoterVotes from '../Voter/VoterVotes';
 import { useState, useEffect } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
@@ -49,7 +50,7 @@ function MainTabs() {
             setAddressToWhitelistLog("");
             setNewAdminAddressLog("");
         })();
-    }, [sessionSelected,accounts, contract])
+    }, [sessionSelected,accounts, contract,workflowStatusLog])
 
     //Initialize VoterTab 
     useEffect(() => {
@@ -62,7 +63,7 @@ function MainTabs() {
             setAmountToDonateLog("");
             setAddProposalLog("");
         })();
-    }, [voterSessionSelected, accounts, contract])
+    }, [voterSessionSelected, accounts, contract,workflowStatusLog])
 
 
     const admin =
@@ -83,9 +84,8 @@ function MainTabs() {
                 <Text></Text>}
             {(voterSessionStatus >= "1") ? <VoterProposals voterSessionSelected={voterSessionSelected} addProposalLog={addProposalLog} setAddProposalLog={setAddProposalLog} voterSessionStatus={voterSessionStatus} voterSessionType={voterSessionType}/> :
                 <Text></Text>}
-            
-
-
+            {(voterSessionStatus === "3") ? <VoterVotes voterSessionSelected={voterSessionSelected} voterSessionType={voterSessionType} /> :
+             <Text></Text>}
         </>;
     
 
