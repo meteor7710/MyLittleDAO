@@ -182,7 +182,7 @@ contract MyLittleDAO is Ownable {
         @param amount The amount withdrawed.
         @param withdrawer The withdrawer address.
         @param sessionID The session ID.*/
-    event WithdrawalSubmitted(uint amount, address withdrawer, uint64 sessionID);
+    event WithdrawalSubmitted(uint amount, address withdrawer, uint64 indexed sessionID);
 
     /** @notice This event is emitted a setting is modified by vote.
         @param setting The setting modified.
