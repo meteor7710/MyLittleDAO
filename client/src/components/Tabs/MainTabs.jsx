@@ -5,6 +5,7 @@ import AdminSessionInformations from '../Admin/AdminSessionInformations';
 import AdminSessionStatus from '../Admin/AdminSessionStatus';
 import AdminSessionWhitelist from '../Admin/AdminSessionWhitelist';
 import AdminSessionTransfer from '../Admin/AdminSessionTransfer';
+import AdminDonations from '../Admin/AdminDonations';
 import VoterSessions from '../Voter/VoterSessions';
 import VoterSessionInformations from '../Voter/VoterSessionInformations';
 import VoterDonations from '../Voter/VoterDonations';
@@ -20,7 +21,7 @@ function MainTabs() {
     const [amountToDonateLog, setAmountToDonateLog] = useState("");
     const [voterSessionSelected, setVoterSessionSelected] = useState("");
     const [voterSessionType, setVoterSessionType] = useState("");
-    //const [adminSessionType, setAdminSessionType] = useState("0");
+    const [adminSessionType, setAdminSessionType] = useState("");
 
     const { state: { contract, accounts, networkID } } = useEth();
 
@@ -35,11 +36,15 @@ function MainTabs() {
     //Initialize AdminTab 
     useEffect(() => {
         (async function () {
+            if (sessionSelected !== "") {
+                const session = await contract.methods.getSession((sessionSelected)).call({ from: accounts[0] });
+                setAdminSessionType(session.voteType)
+            }
             setWorkflowStatusLog("");
             setAddressToWhitelistLog("");
             setNewAdminAddressLog("")
         })();
-    }, [sessionSelected])
+    }, [sessionSelected,accounts, contract])
 
     //Initialize VoterTab 
     useEffect(() => {
@@ -58,6 +63,8 @@ function MainTabs() {
             <AdminSessionInformations sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} workflowStatusLog={workflowStatusLog} />
             <AdminSessionWhitelist sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} setAddressToWhitelistLog={setAddressToWhitelistLog} />
             <AdminSessionStatus sessionSelected={sessionSelected} workflowStatusLog={workflowStatusLog} setWorkflowStatusLog={setWorkflowStatusLog} />
+            {(adminSessionType === "1") ? <AdminDonations sessionSelected={sessionSelected} amountToDonateLog={amountToDonateLog}/> :
+                <Text></Text>}
             <AdminSessionTransfer sessionSelected={sessionSelected} setNewAdminAddressLog={setNewAdminAddressLog} setSessionSelected={setSessionSelected} />
         </>;
 
