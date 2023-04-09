@@ -16,6 +16,7 @@ import VoterProposals from '../Voter/VoterProposals';
 import VoterVotes from '../Voter/VoterVotes';
 import VoterResult from '../Voter/VoterResult';
 import WithdrawerSessions from '../Withdrawer/WithdrawerSessions';
+import WithdrawerWithdraw from '../Withdrawer/WithdrawerWithdraw';
 import { useState, useEffect } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
@@ -35,6 +36,7 @@ function MainTabs() {
     const [withdrawerSessionSelected, setWithdrawerSessionSelected] = useState("");
     const [addProposalLog, setAddProposalLog] = useState("");
     const [voteLog, setVoteLog] = useState("");
+    const [withdrawLog, setWithdrawLog] = useState("");
 
     const { state: { contract, accounts, networkID } } = useEth();
 
@@ -74,6 +76,13 @@ function MainTabs() {
         })();
     }, [voterSessionSelected, accounts, contract, workflowStatusLog])
 
+    //Initialize WitdrawerTab 
+    useEffect(() => {
+        (async function () {
+            setWithdrawLog("");
+        })();
+    }, [withdrawerSessionSelected, accounts, contract])
+
 
     const admin =
         <>
@@ -102,6 +111,11 @@ function MainTabs() {
                 <Text></Text>}
         </>;
 
+    const withdrawer =
+        <>
+            <WithdrawerWithdraw withdrawerSessionSelected={withdrawerSessionSelected} withdrawLog={withdrawLog} setWithdrawLog={setWithdrawLog} />
+        </>;
+
     return (
         <Box >
             <Tabs variant='line'>
@@ -127,6 +141,8 @@ function MainTabs() {
                     </TabPanel>
                     <TabPanel>
                         <WithdrawerSessions withdrawerSessionSelected={withdrawerSessionSelected} setWithdrawerSessionSelected={setWithdrawerSessionSelected} workflowStatusLog={workflowStatusLog} />
+                        {(withdrawerSessionSelected !== "") ? (withdrawer) :
+                            <Text></Text>}
                     </TabPanel>
                 </TabPanels>
             </Tabs>
