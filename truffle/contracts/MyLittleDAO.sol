@@ -170,7 +170,7 @@ contract MyLittleDAO is Ownable {
         @param amount The donation amount.
         @param addr The donator address.
         @param sessionID The session ID.*/
-    event DonationRegistered(uint amount, address addr, uint64 sessionID);
+    event DonationRegistered(uint amount, address indexed addr, uint64 indexed sessionID);
 
     /** @notice This event is emitted when a vote is submitted.
         @param proposalID The proposalID voted.
