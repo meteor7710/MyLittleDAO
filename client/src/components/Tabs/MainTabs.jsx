@@ -7,6 +7,7 @@ import AdminSessionWhitelist from '../Admin/AdminSessionWhitelist';
 import AdminSessionTransfer from '../Admin/AdminSessionTransfer';
 import VoterSessions from '../Voter/VoterSessions';
 import VoterSessionInformations from '../Voter/VoterSessionInformations';
+import VoterDonations from '../Voter/VoterDonations';
 import { useState, useEffect } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 function MainTabs() {
@@ -16,23 +17,40 @@ function MainTabs() {
     const [workflowStatusLog, setWorkflowStatusLog] = useState("");
     const [sessionCreationLog, setSessionCreationLog] = useState("");
     const [newAdminAddressLog, setNewAdminAddressLog] = useState("");
+    const [amountToDonateLog, setAmountToDonateLog] = useState("");
     const [voterSessionSelected, setVoterSessionSelected] = useState("");
+    const [voterSessionType, setVoterSessionType] = useState("");
+    //const [adminSessionType, setAdminSessionType] = useState("0");
+
     const { state: { contract, accounts, networkID } } = useEth();
 
     //Initialize variables 
     useEffect(() => {
         (async function () {
             setSessionSelected("");
+            setVoterSessionSelected("");
         })();
     }, [contract, accounts, networkID])
 
-    //Initialize logs 
+    //Initialize AdminTab 
     useEffect(() => {
         (async function () {
             setWorkflowStatusLog("");
             setAddressToWhitelistLog("");
+            setNewAdminAddressLog("")
         })();
     }, [sessionSelected])
+
+    //Initialize VoterTab 
+    useEffect(() => {
+        (async function () {
+            if (voterSessionSelected !== "") {
+                const session = await contract.methods.getSession((voterSessionSelected)).call({ from: accounts[0] });
+                setVoterSessionType(session.voteType)
+            }
+            setAmountToDonateLog("")
+        })();
+    }, [voterSessionSelected, accounts, contract])
 
 
     const admin =
@@ -46,12 +64,11 @@ function MainTabs() {
     const voter =
         <>
             <VoterSessionInformations voterSessionSelected={voterSessionSelected} addressToWhitelistLog={addressToWhitelistLog} workflowStatusLog={workflowStatusLog} />
+            {(voterSessionType === "1") ? <VoterDonations voterSessionSelected={voterSessionSelected} amountToDonateLog={amountToDonateLog} setAmountToDonateLog={setAmountToDonateLog} /> :
+                <Text></Text>}
+
 
         </>;
-
-
-
-
 
 
     return (
@@ -72,7 +89,7 @@ function MainTabs() {
                             <Text></Text>}
                     </TabPanel>
                     <TabPanel>
-                        <VoterSessions voterSessionSelected={voterSessionSelected} setVoterSessionSelected={setVoterSessionSelected}  />
+                        <VoterSessions voterSessionSelected={voterSessionSelected} setVoterSessionSelected={setVoterSessionSelected} sessionCreationLog={sessionCreationLog} />
                         {(voterSessionSelected !== "") ? (voter) :
                             <Text></Text>}
                     </TabPanel>
