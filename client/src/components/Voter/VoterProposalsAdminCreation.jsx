@@ -31,7 +31,7 @@ function VoterProposalsAdminCreation({ voterSessionSelected, addProposalLog, set
     //Add Proposal
     const addProposal = async () => {
         if (proposalToAdd === "") { setErrorMsg("Proposal description can't be null"); onOpen(); return; }
-        if (!(proposalSetting === "1" || proposalSettingValue === "2")) { setErrorMsg("Setting must selected "); onOpen(); return; }
+        if (!(proposalSetting === "1" || proposalSetting === "2")) { setErrorMsg("Setting must selected "); onOpen(); return; }
         if (proposalSettingValue === "" || proposalSettingValue === "0") { setErrorMsg("Setting value can't be null or 0"); onOpen(); return; }
 
         const session = await contract.methods.getSession(voterSessionSelected).call({ from: accounts[0] });
