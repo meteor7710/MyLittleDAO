@@ -1,21 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useEth } from "../../contexts/EthContext";
 import { Heading, Input, Button, FormControl, FormLabel, Text, Box, Alert, AlertIcon, AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogContent, AlertDialogOverlay, useDisclosure, Flex, Spacer, Center } from '@chakra-ui/react';
 
-function VoterVotes({voterSessionSelected,voterSessionType}) {
+function VoterVotes({voterSessionSelected,voterSessionType,voteLog, setVoteLog}) {
   const { state: { accounts, contract, creationBlock } } = useEth();
-  const [voteLog, setVoteLog] = useState("");
+
   const [proposalIDToVote, setProposalIDToVote] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [errorMsg, setErrorMsg] = useState("");
-
-  //Clean log when we change user
-  useEffect(() => {
-    (async function () {
-      setVoteLog("");
-      setProposalIDToVote("");
-    })();
-  }, [accounts])
 
   //Manage proposal input. It can only be interger
   const handleIDChange = e => {

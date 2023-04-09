@@ -7,6 +7,7 @@ import AdminSessionWhitelist from '../Admin/AdminSessionWhitelist';
 import AdminProposals from '../Admin/AdminProposals';
 import AdminSessionTransfer from '../Admin/AdminSessionTransfer';
 import AdminDonations from '../Admin/AdminDonations';
+import AdminVotes from '../Admin/AdminVotes';
 import VoterSessions from '../Voter/VoterSessions';
 import VoterSessionInformations from '../Voter/VoterSessionInformations';
 import VoterDonations from '../Voter/VoterDonations';
@@ -29,6 +30,7 @@ function MainTabs() {
     const [adminSessionType, setAdminSessionType] = useState("");
     const [adminSessionStatus, setAdminSessionStatus] = useState("");
     const [addProposalLog, setAddProposalLog] = useState("");
+    const [voteLog, setVoteLog] = useState("");
 
     const { state: { contract, accounts, networkID } } = useEth();
 
@@ -64,6 +66,7 @@ function MainTabs() {
             }
             setAmountToDonateLog("");
             setAddProposalLog("");
+            setVoteLog("");
         })();
     }, [voterSessionSelected, accounts, contract,workflowStatusLog])
 
@@ -76,6 +79,7 @@ function MainTabs() {
             {(adminSessionType === "1") ? <AdminDonations sessionSelected={sessionSelected} amountToDonateLog={amountToDonateLog}/> :
                 <Text></Text>}
             <AdminProposals sessionSelected={sessionSelected} addProposalLog={addProposalLog}/>
+            <AdminVotes sessionSelected={sessionSelected}  voteLog={voteLog}/>
             <AdminSessionTransfer sessionSelected={sessionSelected} setNewAdminAddressLog={setNewAdminAddressLog} setSessionSelected={setSessionSelected} />
         </>;
 
@@ -86,7 +90,7 @@ function MainTabs() {
                 <Text></Text>}
             {(voterSessionStatus >= "1") ? <VoterProposals voterSessionSelected={voterSessionSelected} addProposalLog={addProposalLog} setAddProposalLog={setAddProposalLog} voterSessionStatus={voterSessionStatus} voterSessionType={voterSessionType}/> :
                 <Text></Text>}
-            {(voterSessionStatus === "3") ? <VoterVotes voterSessionSelected={voterSessionSelected} voterSessionType={voterSessionType} /> :
+            {(voterSessionStatus === "3") ? <VoterVotes voterSessionSelected={voterSessionSelected} voterSessionType={voterSessionType} voteLog={voteLog} setVoteLog={setVoteLog} /> :
              <Text></Text>}
         </>;
     
