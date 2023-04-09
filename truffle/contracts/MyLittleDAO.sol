@@ -176,7 +176,7 @@ contract MyLittleDAO is Ownable {
         @param proposalID The proposalID voted.
         @param voter The voter address.
         @param sessionID The session ID.*/
-    event VoteSubmitted(uint16 proposalID, address voter, uint64 sessionID);
+    event VoteSubmitted(uint16 proposalID, address indexed voter, uint64 indexed sessionID);
 
     /** @notice This event is emitted when a withdraw is submitted.
         @param amount The amount withdrawed.
