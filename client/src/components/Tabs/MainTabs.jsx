@@ -27,6 +27,7 @@ function MainTabs() {
     const [voterSessionType, setVoterSessionType] = useState("");
     const [voterSessionStatus, setVoterSessionStatus] = useState("");
     const [adminSessionType, setAdminSessionType] = useState("");
+    const [adminSessionStatus, setAdminSessionStatus] = useState("");
     const [addProposalLog, setAddProposalLog] = useState("");
 
     const { state: { contract, accounts, networkID } } = useEth();
@@ -45,6 +46,7 @@ function MainTabs() {
             if (sessionSelected !== "") {
                 const session = await contract.methods.getSession((sessionSelected)).call({ from: accounts[0] });
                 setAdminSessionType(session.voteType);
+                setAdminSessionStatus(session.workflowStatus);
             }
             setWorkflowStatusLog("");
             setAddressToWhitelistLog("");
@@ -70,7 +72,7 @@ function MainTabs() {
         <>
             <AdminSessionInformations sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} workflowStatusLog={workflowStatusLog} />
             <AdminSessionWhitelist sessionSelected={sessionSelected} addressToWhitelistLog={addressToWhitelistLog} setAddressToWhitelistLog={setAddressToWhitelistLog} />
-            <AdminSessionStatus sessionSelected={sessionSelected} workflowStatusLog={workflowStatusLog} setWorkflowStatusLog={setWorkflowStatusLog} />
+            <AdminSessionStatus sessionSelected={sessionSelected} workflowStatusLog={workflowStatusLog} setWorkflowStatusLog={setWorkflowStatusLog} adminSessionStatus={adminSessionStatus} />
             {(adminSessionType === "1") ? <AdminDonations sessionSelected={sessionSelected} amountToDonateLog={amountToDonateLog}/> :
                 <Text></Text>}
             <AdminProposals sessionSelected={sessionSelected} addProposalLog={addProposalLog}/>

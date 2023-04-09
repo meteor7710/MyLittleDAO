@@ -1,19 +1,19 @@
-import { useDisclosure, Heading, Box, TableContainer, TableCaption, Thead, Table, Th, Tbody, Tr, Td, Flex, Text, Center, Button, Alert, AlertIcon,AlertDialog,AlertDialogOverlay,AlertDialogContent,AlertDialogBody,AlertDialogFooter } from '@chakra-ui/react';
+import { useDisclosure, Heading, Box, TableContainer, TableCaption, Thead, Table, Th, Tbody, Tr, Td, Flex, Text, Center, Button, Alert, AlertIcon, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogBody, AlertDialogFooter } from '@chakra-ui/react';
 import useEth from "../../contexts/EthContext/useEth";
 import { useState, useEffect } from "react";
 
-function AdminSessionStatus({ sessionSelected,workflowStatusLog,setWorkflowStatusLog }) {
+function AdminSessionStatus({ sessionSelected, workflowStatusLog, setWorkflowStatusLog, adminSessionStatus }) {
 
     const { state: { contract, accounts, creationBlock } } = useEth();
     const [workflowEvents, setWorkflowEvents] = useState();
-    
+
     const [errorMsg, setErrorMsg] = useState("");
     const { isOpen, onOpen, onClose } = useDisclosure();
 
     //show status event history
     useEffect(() => {
         (async function () {
-            const workflowStatusEvents = await contract.getPastEvents('WorkflowStatusChange', {filter: {sessionID: sessionSelected }, fromBlock: creationBlock, toBlock: 'latest' });
+            const workflowStatusEvents = await contract.getPastEvents('WorkflowStatusChange', { filter: { sessionID: sessionSelected }, fromBlock: creationBlock, toBlock: 'latest' });
 
             const workflowChanges = [];
 
@@ -37,15 +37,20 @@ function AdminSessionStatus({ sessionSelected,workflowStatusLog,setWorkflowStatu
 
             setWorkflowEvents(listWorkflowChanges);
         })();
-    }, [contract,sessionSelected, creationBlock, workflowStatusLog])
+    }, [contract, sessionSelected, creationBlock, workflowStatusLog])
 
     //Change workflowstatus to next status
     const changeStatus = async () => {
 
         const session = await contract.methods.getSession((sessionSelected)).call({ from: accounts[0] });
 
-        if( session.workflowStatus === "0" && session.sessionVoters === "0") { setErrorMsg("You must have one voter before changing status"); onOpen(); return; }
-        if( session.workflowStatus === "1" && session.sessionProposals === "0") { setErrorMsg("You must have one proposal before changing status"); onOpen(); return; }
+        if (session.workflowStatus === "0" && session.sessionVoters === "0") { setErrorMsg("You must have one voter before changing status"); onOpen(); return; }
+        if (session.workflowStatus === "1" && session.sessionProposals === "0") { setErrorMsg("You must have one proposal before changing status"); onOpen(); return; }
+
+        if (session.workflowStatus === "3") {
+            const voterEvents = await contract.getPastEvents('VoteSubmitted', { filter: { sessionID: sessionSelected }, fromBlock: creationBlock, toBlock: 'latest' });
+            if (voterEvents.length === 0) { setErrorMsg("You must have one vote before changing status"); onOpen(); return; }
+        }
 
         if (await contract.methods.changeWorkflowStatus(sessionSelected).call({ from: accounts[0] })) {
             const workflowStatusTx = await contract.methods.changeWorkflowStatus(sessionSelected).send({ from: accounts[0] })
@@ -65,10 +70,8 @@ function AdminSessionStatus({ sessionSelected,workflowStatusLog,setWorkflowStatu
                     <Flex>
                         <Text my="25px">Change workflow status actions :</Text>
                         <Center mx="25px">
-                            {
-                                <Button colorScheme='gray' onClick={changeStatus}>Change to next status</Button>
-
-                            }
+                            {(adminSessionStatus !== "5") ? (<Button colorScheme='gray' onClick={changeStatus}>Change to next status</Button>) :
+                                <Alert width="auto" status='warning' borderRadius='25px'> <AlertIcon />Session Tallied</Alert>}
                         </Center>
                     </Flex>
                 </Box>
