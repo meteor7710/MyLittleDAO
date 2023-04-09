@@ -188,7 +188,7 @@ contract MyLittleDAO is Ownable {
         @param setting The setting modified.
         @param value The new setting value.
         @param sessionID The session ID.*/
-    event SettingsApplied(Setting setting, uint16 value, uint64 sessionID);
+    event SettingsApplied(Setting setting, uint16 value, uint64 indexed sessionID);
 
     /************** Modifier definitions **************/
 
