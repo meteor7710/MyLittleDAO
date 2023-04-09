@@ -37,8 +37,10 @@ function AdminSessionWhitelist({ sessionSelected, addressToWhitelistLog, setAddr
 
         //Validation max voter not reach
         const maxVoterperSession = await contract.methods.maxVoterperSession().call({ from: accounts[0] });
-        if ((voterRegisteredEvents.length - voterUnregisteredEvents.length) >= maxVoterperSession) { setErrorMsg("Max voter per session reached"); onOpen(); setAddressToWhitelist(""); return; }
+        const maxvoterRegisteredEvents = await contract.getPastEvents('VoterRegistered', { filter: {  sessionID: sessionSelected }, fromBlock: creationBlock, toBlock: 'latest' });
+        const maxvoterUnregisteredEvents = await contract.getPastEvents('VoterUnregistered', { filter: {  sessionID: sessionSelected }, fromBlock: creationBlock, toBlock: 'latest' });
 
+        if ((maxvoterRegisteredEvents.length - maxvoterUnregisteredEvents.length) >= maxVoterperSession) { setErrorMsg("Max voter per session reached"); onOpen(); setAddressToWhitelist(""); return; }
 
         if (await contract.methods.addVoter(addressToWhitelist, sessionSelected).call({ from: accounts[0] })) {
             const addAddressTx = await contract.methods.addVoter(addressToWhitelist, sessionSelected).send({ from: accounts[0] });
