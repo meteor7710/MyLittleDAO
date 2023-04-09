@@ -51,7 +51,7 @@ function VoterSessions({voterSessionSelected,setVoterSessionSelected,addressToWh
                 }
             }
 
-            //Manage admin list selection
+            //Manage voter list selection
             const voterSessionsRendered = voterSessions.map((session, index) =>
                 <option key={"session" + index} value={session.id}>Session {session.id} - {session.title}</option>
             );

@@ -15,6 +15,7 @@ import VoterDonations from '../Voter/VoterDonations';
 import VoterProposals from '../Voter/VoterProposals';
 import VoterVotes from '../Voter/VoterVotes';
 import VoterResult from '../Voter/VoterResult';
+import WithdrawerSessions from '../Withdrawer/WithdrawerSessions';
 import { useState, useEffect } from "react";
 import useEth from "../../contexts/EthContext/useEth";
 
@@ -31,6 +32,7 @@ function MainTabs() {
     const [voterSessionStatus, setVoterSessionStatus] = useState("");
     const [adminSessionType, setAdminSessionType] = useState("");
     const [adminSessionStatus, setAdminSessionStatus] = useState("");
+    const [withdrawerSessionSelected, setWithdrawerSessionSelected] = useState("");
     const [addProposalLog, setAddProposalLog] = useState("");
     const [voteLog, setVoteLog] = useState("");
 
@@ -107,6 +109,7 @@ function MainTabs() {
                     <Tab>Create new Sessions</Tab>
                     <Tab>Admin role Sessions</Tab>
                     <Tab>Vote role Sessions</Tab>
+                    <Tab>Withdrawer role Sessions</Tab>
                 </TabList>
                 <TabPanels>
                     <TabPanel>
@@ -121,6 +124,9 @@ function MainTabs() {
                         <VoterSessions voterSessionSelected={voterSessionSelected} setVoterSessionSelected={setVoterSessionSelected} addressToWhitelistLog={addressToWhitelistLog} />
                         {(voterSessionSelected !== "") ? (voter) :
                             <Text></Text>}
+                    </TabPanel>
+                    <TabPanel>
+                        <WithdrawerSessions withdrawerSessionSelected={withdrawerSessionSelected} setWithdrawerSessionSelected={setWithdrawerSessionSelected} workflowStatusLog={workflowStatusLog} />
                     </TabPanel>
                 </TabPanels>
             </Tabs>
