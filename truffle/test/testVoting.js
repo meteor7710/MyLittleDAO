@@ -120,9 +120,9 @@ contract("MyLittleDAO tests", accounts => {
 
             it("event is correctly emmited when a session is created", async () => {
                 const evenTx = await votingInstance.createnewVoteSession("Session 1", 0, { from: _sessionAdmin });
-                await expectEvent(evenTx, "sessionCreated", { sessionID: BN(1) });
+                await expectEvent(evenTx, "sessionCreated", {adminAddress: _sessionAdmin,sessionID: BN(1) });
                 const evenTx2 = await votingInstance.createnewVoteSession("Session 2", 1, { from: _voter2 });
-                await expectEvent(evenTx2, "sessionCreated", { sessionID: BN(2) });
+                await expectEvent(evenTx2, "sessionCreated", {adminAddress: _voter2, sessionID: BN(2) });
             });
         })
 
