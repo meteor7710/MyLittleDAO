@@ -141,9 +141,9 @@ function MainTabs() {
         <Box >
             <Tabs variant='line'>
                 <TabList>
-                    <Tab>Create new</Tab>
+                    <Tab>Create session</Tab>
                     <Tab>Admin role</Tab>
-                    <Tab>Vote role</Tab>
+                    <Tab>Voter role</Tab>
                     <Tab>Withdrawer role</Tab>
                     <Tab>Owner role</Tab>
                 </TabList>
