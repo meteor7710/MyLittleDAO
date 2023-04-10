@@ -3,7 +3,16 @@
 ## Videos descriptives
 
 ### Introduction
- <div style="position: relative; padding-bottom: 79.09238249594813%; height: 0;"><iframe src="https://www.loom.com/embed/9796c1fa999b4aeda0e538d8c012b3e1" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe></div>
+ - https://www.loom.com/share/9796c1fa999b4aeda0e538d8c012b3e1
+
+### Simple Vote
+ - https://www.loom.com/share/01657d5d4ecc4dd2a44cbc6190bb0dc3
+
+### Pot Vote
+ - https://www.loom.com/share/e53fae2afaf246d0a0185a7caefc32ac
+
+### Admin Vote
+ - https://www.loom.com/share/8b54fe0d09b343c881edbb79395a39b9
 
 
 ## Vercel dApp
